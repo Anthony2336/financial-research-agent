@@ -1,0 +1,102 @@
+name: financial-evidence-agent
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: financial_evidence
+      POSTGRES_USER: financial_evidence
+      POSTGRES_PASSWORD: financial_evidence
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financial_evidence -d financial_evidence"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: financial-evidence-agent:latest
+    profiles:
+      - cli
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://financial_evidence:financial_evidence@postgres:5432/financial_evidence
+      OFFLINE_DEMO: ${OFFLINE_DEMO:-false}
+      REDIS_URL: redis://redis:6379/0
+      REFUSAL_PERSISTENCE_CONNECT_TIMEOUT_SECONDS: ${REFUSAL_PERSISTENCE_CONNECT_TIMEOUT_SECONDS:-1}
+      SEC_USER_AGENT: ${SEC_USER_AGENT:-Example Research Operator research-operator@example.com}
+      SEC_CACHE_TTL_SECONDS: ${SEC_CACHE_TTL_SECONDS:-86400}
+      XBRL_MAX_RESPONSE_BYTES: ${XBRL_MAX_RESPONSE_BYTES:-26214400}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_CACHE_DIR: /opt/financial-evidence-agent/models/embedding
+      RERANKER_MODEL: ${RERANKER_MODEL:-ms-marco-MiniLM-L-12-v2}
+      RERANKER_CACHE_DIR: /opt/financial-evidence-agent/models/flashrank
+      CONTEXT_COMPRESSOR_MODEL: ${CONTEXT_COMPRESSOR_MODEL:-microsoft/llmlingua-2-xlm-roberta-large-meetingbank}
+      CONTEXT_COMPRESSOR_CACHE_DIR: /opt/financial-evidence-agent/models/llmlingua
+      TOKENIZER_CACHE_DIR: /opt/financial-evidence-agent/models/tokenizer
+      FAST_MODEL: ${FAST_MODEL:-}
+      ANALYST_MODEL: ${ANALYST_MODEL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      WEB_SEARCH_TIMEOUT_SECONDS: ${WEB_SEARCH_TIMEOUT_SECONDS:-10}
+      WEB_ISSUER_DOMAINS: '${WEB_ISSUER_DOMAINS:-{}}'
+      WEB_INDUSTRY_AUTHORITY_DOMAINS: '${WEB_INDUSTRY_AUTHORITY_DOMAINS:-["ftc.gov","justice.gov","commerce.gov","federalregister.gov"]}'
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-alpaca}
+      ALPACA_API_KEY_ID: ${ALPACA_API_KEY_ID:-}
+      ALPACA_API_SECRET_KEY: ${ALPACA_API_SECRET_KEY:-}
+      ALPACA_DATA_FEED: ${ALPACA_DATA_FEED:-iex}
+      ALPACA_TRADING_ENVIRONMENT: ${ALPACA_TRADING_ENVIRONMENT:-paper}
+      MARKET_DATA_TIMEOUT_SECONDS: ${MARKET_DATA_TIMEOUT_SECONDS:-5}
+      MARKET_DATA_MAX_BARS: ${MARKET_DATA_MAX_BARS:-5}
+      MARKET_DATA_MAX_STALENESS_SECONDS: ${MARKET_DATA_MAX_STALENESS_SECONDS:-90}
+      MARKET_CONTEXT_WINDOW_DAYS: ${MARKET_CONTEXT_WINDOW_DAYS:-3}
+      MARKET_ABNORMAL_MOVE_THRESHOLD: ${MARKET_ABNORMAL_MOVE_THRESHOLD:-0.05}
+      RESEARCH_QUALITY_MAX_SOURCE_AGE_DAYS: ${RESEARCH_QUALITY_MAX_SOURCE_AGE_DAYS:-365}
+      RESEARCH_MEMORY_TTL_DAYS: ${RESEARCH_MEMORY_TTL_DAYS:-90}
+    volumes:
+      - type: bind
+        source: ${EMBEDDING_CACHE_DIR:-./.model-cache/bge-m3}
+        target: /opt/financial-evidence-agent/models/embedding
+        read_only: true
+      - type: bind
+        source: ${TOKENIZER_CACHE_DIR:-./.model-cache/tokenizer}
+        target: /opt/financial-evidence-agent/models/tokenizer
+        read_only: true
+      - type: bind
+        source: ${CONTEXT_COMPRESSOR_CACHE_DIR:-./.model-cache/llmlingua}
+        target: /opt/financial-evidence-agent/models/llmlingua
+        read_only: true
+      - type: bind
+        source: ${RERANKER_CACHE_DIR:-./.model-cache/flashrank}
+        target: /opt/financial-evidence-agent/models/flashrank
+        read_only: true
+
+volumes:
+  postgres_data:
+  redis_data:

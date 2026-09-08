@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+.ruff_cache/
+.model-cache/
+.DS_Store
+:memory:.ses
+.superpowers/
+.agents/
+.codex/
+AGENTS.md
+docs/superpowers/
+.worktrees/
+
+# Virtual environments
+.venv
+.env

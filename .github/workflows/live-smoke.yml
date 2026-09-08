@@ -1,0 +1,96 @@
+name: live-smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_p1_smoke:
+        description: Run one bounded OpenAI-backed P1 application smoke.
+        required: true
+        default: false
+        type: boolean
+      run_alpaca_smoke:
+        description: Run one bounded Alpaca Basic IEX smoke.
+        required: true
+        default: false
+        type: boolean
+      run_langfuse_smoke:
+        description: Run one Langfuse trace flush and one small P2 experiment.
+        required: true
+        default: false
+        type: boolean
+      run_sec_smoke:
+        description: Run one explicit live SEC ingest smoke.
+        required: true
+        default: false
+        type: boolean
+      run_tavily_smoke:
+        description: Run one optional Tavily provider smoke.
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    environment: live-smoke
+    env:
+      UV_CACHE_DIR: .uv-cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v4
+      - name: Sync Dependencies
+        run: uv sync --frozen --all-groups
+      - name: Sync Web-Search Extra
+        if: ${{ inputs.run_tavily_smoke }}
+        run: uv sync --frozen --all-groups --extra web-search
+      - name: Prefetch Local Model Assets
+        if: ${{ inputs.run_p1_smoke }}
+        env:
+          FAST_MODEL: ${{ vars.FAST_MODEL }}
+          ANALYST_MODEL: ${{ vars.ANALYST_MODEL }}
+          EMBEDDING_CACHE_DIR: .model-cache/bge-m3
+          TOKENIZER_CACHE_DIR: .model-cache/tokenizer
+          CONTEXT_COMPRESSOR_CACHE_DIR: .model-cache/llmlingua
+          RERANKER_CACHE_DIR: .model-cache/flashrank
+        run: uv run prefetch-model-assets
+      - name: P1 Application Smoke
+        if: ${{ inputs.run_p1_smoke }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          FAST_MODEL: ${{ vars.FAST_MODEL }}
+          ANALYST_MODEL: ${{ vars.ANALYST_MODEL }}
+          EMBEDDING_CACHE_DIR: .model-cache/bge-m3
+          TOKENIZER_CACHE_DIR: .model-cache/tokenizer
+          CONTEXT_COMPRESSOR_CACHE_DIR: .model-cache/llmlingua
+          RERANKER_CACHE_DIR: .model-cache/flashrank
+        run: uv run pytest -m live_provider tests/integration/test_live_sec_opt_in.py -k live_p1_application_smoke -v
+      - name: Alpaca IEX Smoke
+        if: ${{ inputs.run_alpaca_smoke }}
+        env:
+          ALPACA_API_KEY_ID: ${{ secrets.ALPACA_API_KEY_ID }}
+          ALPACA_API_SECRET_KEY: ${{ secrets.ALPACA_API_SECRET_KEY }}
+          ALPACA_TRADING_ENVIRONMENT: ${{ vars.ALPACA_TRADING_ENVIRONMENT }}
+        run: uv run pytest -m live_provider tests/integration/test_live_alpaca_opt_in.py -v
+      - name: Langfuse Smoke
+        if: ${{ inputs.run_langfuse_smoke }}
+        env:
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_HOST: ${{ vars.LANGFUSE_HOST }}
+        run: uv run pytest -m live_provider tests/integration/test_live_langfuse_opt_in.py -v
+      - name: SEC Smoke
+        if: ${{ inputs.run_sec_smoke }}
+        env:
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: uv run pytest -m live_sec tests/integration/test_live_sec_opt_in.py -k real_nvda_sec_ingest_smoke -v
+      - name: Tavily Smoke
+        if: ${{ inputs.run_tavily_smoke }}
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+        run: uv run pytest -m live_provider tests/integration/test_live_sec_opt_in.py -k real_tavily_provider_smoke -v

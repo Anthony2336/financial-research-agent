@@ -1,0 +1,74 @@
+{
+  "cik": 1045810,
+  "entityName": "NVIDIA CORPORATION",
+  "facts": {
+    "us-gaap": {
+      "RevenueFromContractWithCustomerExcludingAssessedTax": {
+        "label": "Revenue",
+        "description": "Revenue recognized from contracts with customers.",
+        "units": {
+          "USD": [
+            {
+              "start": "2024-01-29",
+              "end": "2025-01-26",
+              "val": 130497000000.125,
+              "accn": "0001045810-25-000023",
+              "fy": 2025,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2025-02-26",
+              "frame": "CY2024"
+            }
+          ]
+        }
+      },
+      "Assets": {
+        "label": "Assets",
+        "description": "Total assets.",
+        "units": {
+          "USD": [
+            {
+              "end": "2025-01-26",
+              "val": 111601000000,
+              "accn": "0001045810-25-000023",
+              "fy": 2025,
+              "fp": "FY",
+              "form": "10-K",
+              "filed": "2025-02-26",
+              "frame": "CY2024Q4I"
+            }
+          ]
+        }
+      }
+    },
+    "dei": {
+      "EntityCommonStockSharesOutstanding": {
+        "label": "Entity Common Stock Shares Outstanding",
+        "description": "Shares outstanding.",
+        "units": {
+          "shares": [
+            {
+              "end": "2025-05-23",
+              "val": 24490000000,
+              "accn": "0001045810-25-000116",
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2025-05-28",
+              "frame": "CY2025Q1I"
+            },
+            {
+              "end": "2025-05-23",
+              "val": 24490000000,
+              "accn": "0001045810-25-000115",
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "DEF 14A",
+              "filed": "2025-05-27"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

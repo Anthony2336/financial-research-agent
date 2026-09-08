@@ -1,0 +1,108 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-validation:
+    runs-on: ubuntu-latest
+    env:
+      UV_CACHE_DIR: .uv-cache
+      DATABASE_URL: postgresql+psycopg://financial_evidence:financial_evidence@127.0.0.1:5433/financial_evidence
+      REDIS_URL: redis://127.0.0.1:6380/0
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: financial_evidence
+          POSTGRES_USER: financial_evidence
+          POSTGRES_PASSWORD: financial_evidence
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U financial_evidence -d financial_evidence"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v4
+      - name: Diff Whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -o pipefail
+          if git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            git diff --check "$BASE_SHA" HEAD
+          else
+            EMPTY_TREE="$(git hash-object -t tree /dev/null)"
+            git rev-list --parents HEAD | while read -r commit parents; do
+              if test -z "$parents"; then
+                git diff --check "$EMPTY_TREE" "$commit" || exit 1
+              else
+                for parent in $parents; do
+                  git diff --check "$parent" "$commit" || exit 1
+                done
+              fi
+            done
+          fi
+      - name: Sync Dependencies
+        run: uv sync --frozen --all-groups
+      - name: Upgrade Database
+        run: uv run alembic upgrade head
+      - name: PostgreSQL Acceptance
+        env:
+          RUN_POSTGRES_INTEGRATION: "1"
+        run: |
+          uv run pytest \
+            tests/integration/test_database_migrations.py \
+            tests/integration/test_postgres_fixture_ingest.py \
+            tests/integration/test_postgres_vector_retrieval.py -q
+      - name: Ruff
+        run: uv run ruff check .
+      - name: Offline Test Suite
+        run: uv run pytest -m "not live_sec and not live_provider" -q
+      - name: Offline Eval
+        run: uv run eval
+      - name: Offline P2 Eval
+        run: uv run eval --suite p2
+      - name: Build Package
+        run: uv build --offline --no-build-isolation
+      - name: Docker Fixture Smoke
+        run: |
+          trap 'docker compose down -v' EXIT
+          docker compose config --quiet
+          docker compose up -d --wait postgres redis
+          docker compose --profile cli build cli
+          docker compose --profile cli run --rm cli db-upgrade
+          docker compose --profile cli run --rm cli ingest --fixture /app/src/financial_evidence_agent/resources/nvda_10q.html --ticker NVDA --form 10-Q
+          OFFLINE_DEMO=true docker compose --profile cli run --rm cli research NVDA --thesis "Do cited disclosures support sustained data center demand?"
+          retrieval_cache_key="$(docker compose exec -T redis redis-cli --raw --scan --pattern 'fea:retrieval:NVDA-v1:NVDA:*' | head -n 1)"
+          test -n "$retrieval_cache_key"
+          cache_hits_before="$(docker compose exec -T redis redis-cli --raw INFO stats | awk -F: '$1 == "keyspace_hits" {gsub("\\r", "", $2); print $2}')"
+          start_seconds="$(date +%s)"
+          OFFLINE_DEMO=true docker compose --profile cli run --rm cli research NVDA --thesis "Do cited disclosures support sustained data center demand?"
+          elapsed_seconds="$(( $(date +%s) - start_seconds ))"
+          cache_hits_after="$(docker compose exec -T redis redis-cli --raw INFO stats | awk -F: '$1 == "keyspace_hits" {gsub("\\r", "", $2); print $2}')"
+          test "$cache_hits_after" -gt "$cache_hits_before"
+          echo "warm-cache controlled elapsed: ${elapsed_seconds}s (documented target: <60s)"
+          test "$elapsed_seconds" -lt 60
+          docker compose --profile cli run --rm cli eval --suite p2
