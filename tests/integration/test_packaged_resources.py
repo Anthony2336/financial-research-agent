@@ -25,7 +25,6 @@ def _offline_environment() -> dict[str, str]:
         "ANALYST_MODEL",
     ):
         environment.pop(name, None)
-    environment["UV_CACHE_DIR"] = "/tmp/financial-evidence-agent-uv-cache"
     return environment
 
 
@@ -57,11 +56,13 @@ def test_wheel_and_sdist_contain_bundled_dataset_and_fixture(tmp_path: Path) -> 
         pytest.skip("uv is required for the distribution smoke test")
     repository_root = Path(__file__).resolve().parents[2]
     output_directory = tmp_path / "dist"
+    environment = _offline_environment()
+    environment["UV_CACHE_DIR"] = str(tmp_path / "empty-uv-cache")
 
     completed = subprocess.run(
-        [uv, "build", "--offline", "--out-dir", str(output_directory)],
+        [uv, "build", "--offline", "--no-build-isolation", "--out-dir", str(output_directory)],
         cwd=repository_root,
-        env=_offline_environment(),
+        env=environment,
         check=False,
         capture_output=True,
         text=True,

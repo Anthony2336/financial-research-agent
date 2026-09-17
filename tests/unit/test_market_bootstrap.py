@@ -42,6 +42,7 @@ class CapturingGateway:
 def _settings() -> Settings:
     return Settings(
         database_url="sqlite+pysqlite:///:memory:",
+        redis_url=None,
         alpaca_api_key_id=SecretStr("key-id"),
         alpaca_api_secret_key=SecretStr("secret-key"),
         market_data_max_bars=7,

@@ -6,6 +6,13 @@ from collections.abc import Generator
 from typing import Any
 
 import pytest
+import typer.rich_utils
+
+
+@pytest.fixture(autouse=True)
+def plain_cli_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep captured CLI text independent of CI terminal color detection."""
+    monkeypatch.setattr(typer.rich_utils, "FORCE_TERMINAL", False)
 
 
 def pytest_configure(config: pytest.Config) -> None:

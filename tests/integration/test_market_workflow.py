@@ -759,6 +759,7 @@ def test_production_application_builds_fresh_persisted_market_runtime_per_run(
     database_path = tmp_path / "market-application.sqlite3"
     settings = Settings(
         database_url=f"sqlite+pysqlite:///{database_path}",
+        redis_url=None,
         alpaca_api_key_id=SecretStr("key-id"),
         alpaca_api_secret_key=SecretStr("secret-key"),
         _env_file=None,
@@ -853,6 +854,7 @@ def test_fatal_snapshot_failure_skips_bars_fetch_persistence_and_closes_once(tmp
     database_path = tmp_path / "market-failure.sqlite3"
     settings = Settings(
         database_url=f"sqlite+pysqlite:///{database_path}",
+        redis_url=None,
         alpaca_api_key_id=SecretStr("key-id"),
         alpaca_api_secret_key=SecretStr("secret-key"),
         _env_file=None,
@@ -941,6 +943,7 @@ def test_partial_market_run_persists_one_bundle_without_bar_ids(tmp_path) -> Non
     database_path = tmp_path / "market-partial.sqlite3"
     settings = Settings(
         database_url=f"sqlite+pysqlite:///{database_path}",
+        redis_url=None,
         alpaca_api_key_id=SecretStr("key-id"),
         alpaca_api_secret_key=SecretStr("secret-key"),
         _env_file=None,
@@ -1026,6 +1029,7 @@ def test_guard_invalid_snapshot_stops_before_bars_or_market_persistence(tmp_path
     database_path = tmp_path / "market-invalid-snapshot.sqlite3"
     settings = Settings(
         database_url=f"sqlite+pysqlite:///{database_path}",
+        redis_url=None,
         alpaca_api_key_id=SecretStr("key-id"),
         alpaca_api_secret_key=SecretStr("secret-key"),
         _env_file=None,
