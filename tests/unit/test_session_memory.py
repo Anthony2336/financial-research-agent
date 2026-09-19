@@ -7,17 +7,17 @@ import logging
 
 import pytest
 
-from financial_evidence_agent.memory.models import ConversationTurn, SessionMemory
-from financial_evidence_agent.memory.privacy import contains_private_financial_or_secret
-from financial_evidence_agent.memory.privacy_normalization import privacy_text_views
-from financial_evidence_agent.memory.session import (
+from fra.memory.models import ConversationTurn, SessionMemory
+from fra.memory.privacy import contains_private_financial_or_secret
+from fra.memory.privacy_normalization import privacy_text_views
+from fra.memory.session import (
     SESSION_TTL_SECONDS,
     SessionMemoryStore,
     build_rolling_summary,
     is_session_memory_eligible_request,
     load_session_memory_for_ticker,
 )
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache, RedisJsonCache
+from fra.storage.cache import InMemoryTtlJsonCache, RedisJsonCache
 
 PRIVATE_REQUESTS = (
     "Credentials: ZXCV-1234",
@@ -970,9 +970,9 @@ def test_peer_ticker_sanitizer_uses_punctuation_safe_conservative_boundaries(
     text: str,
     allowed: bool,
 ) -> None:
-    from financial_evidence_agent import application as application_module
+    from fra.memory import projection as projection_module
 
-    safety = application_module._SummarySafety(  # noqa: SLF001
+    safety = projection_module._SummarySafety(  # noqa: SLF001
         forbidden_values=(),
         other_tickers=(ticker,),
     )

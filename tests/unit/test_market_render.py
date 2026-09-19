@@ -5,16 +5,16 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
 
-from financial_evidence_agent.market_data.models import (
+from fra.market_data.models import (
     MarketBar,
     MarketDataBundle,
     MarketSnapshot,
 )
-from financial_evidence_agent.reporting.market_guard import (
+from fra.reporting.market_guard import (
     GuardedMarketReport,
     guard_market_bundle,
 )
-from financial_evidence_agent.reporting.market_render import render_market_markdown
+from fra.reporting.market_render import render_market_markdown
 
 NOW = datetime(2026, 8, 31, 14, 1, tzinfo=UTC)
 DISCLAIMER = "Research assistance only; not investment advice."
@@ -231,3 +231,24 @@ def test_renderer_fails_closed_when_guarded_provenance_is_construction_bypassed(
     assert "Market data is unavailable." in markdown
     assert "123.450000000000000001" not in markdown
     assert _snapshot().id not in markdown
+
+
+def test_context_lists_show_empty_placeholders_only_when_empty() -> None:
+    from fra.market_data.models import MarketContext
+
+    for populated in (True, False):
+        context = MarketContext(
+            anchor_as_of=_snapshot().as_of,
+            window_start=NOW - timedelta(days=3),
+            window_end=NOW,
+            cause_assessment="cause_unknown",
+            counterevidence=["The event does not establish causality."] if populated else [],
+            open_questions=["What other events occurred?"] if populated else [],
+        )
+        guarded = _guarded_bundle().model_copy(update={"market_context": context})
+        markdown = render_market_markdown(guarded)
+        assert ("- None retained." in markdown.split("## Counterevidence")[1]) is not populated
+        assert ("- None." in markdown.split("## Open questions")[1]) is not populated
+        if populated:
+            assert "- The event does not establish causality." in markdown
+            assert "- What other events occurred?" in markdown

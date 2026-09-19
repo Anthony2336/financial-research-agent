@@ -11,9 +11,9 @@ from fastmcp.client.client import CallToolResult
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-import financial_evidence_agent.graph.workflow as workflow_module
-from financial_evidence_agent.context import BudgetAuthority, BudgetLimits
-from financial_evidence_agent.domain import (
+import fra.graph.workflow as workflow_module
+from fra.context import BudgetAuthority, BudgetLimits
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -26,11 +26,11 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.graph.models import Dependencies, FastMCPToolClient
-from financial_evidence_agent.graph.workflow import build_research_graph, run_research
-from financial_evidence_agent.mcp_server.server import create_server
-from financial_evidence_agent.reporting import guard_memo
-from financial_evidence_agent.retrieval.collector import (
+from fra.graph.models import Dependencies, FastMCPToolClient
+from fra.graph.workflow import build_research_graph, run_research
+from fra.mcp_server.server import create_server
+from fra.reporting import guard_memo
+from fra.retrieval.collector import (
     THESIS_COLLECTION_POLICY,
     CollectionErrorCode,
     EvidenceBundle,
@@ -43,18 +43,18 @@ from financial_evidence_agent.retrieval.collector import (
     WebEvidenceHit,
     WebSearchResponse,
 )
-from financial_evidence_agent.retrieval.coverage import (
+from fra.retrieval.coverage import (
     CoverageReport,
     EvidenceAssignment,
     EvidenceSide,
     FacetAssignment,
 )
-from financial_evidence_agent.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.skills.models import ResearchFacet
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
+from fra.retrieval.ingest import ingest_fixture
+from fra.skills.models import ResearchFacet
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 
 def _chunk(

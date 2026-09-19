@@ -4,7 +4,7 @@ from datetime import UTC, date, datetime
 
 import pytest
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -14,16 +14,16 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.reporting import GuardedMemo, guard_memo, render_markdown
-from financial_evidence_agent.retrieval.collector import EvidenceBundle
-from financial_evidence_agent.retrieval.coverage import (
+from fra.reporting import GuardedMemo, guard_memo, render_markdown
+from fra.retrieval.collector import EvidenceBundle
+from fra.retrieval.coverage import (
     CoverageReport,
     EvidenceAssignment,
     EvidenceSide,
     FacetAssignment,
 )
-from financial_evidence_agent.skills.models import ResearchFacet
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.skills.models import ResearchFacet
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 
 def _chunk(

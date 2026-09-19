@@ -5,12 +5,12 @@ from datetime import UTC, date, datetime
 
 import pytest
 
-from financial_evidence_agent.context import (
+from fra.context import (
     BudgetAuthority,
     BudgetExhaustedError,
     BudgetLimits,
 )
-from financial_evidence_agent.domain import (
+from fra.domain import (
     EvidenceChunk,
     Intent,
     ResearchQuestion,
@@ -18,7 +18,7 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.retrieval.collector import (
+from fra.retrieval.collector import (
     CollectionErrorCode,
     EvidenceCollectionError,
     EvidenceCollector,
@@ -32,8 +32,8 @@ from financial_evidence_agent.retrieval.collector import (
     WebSearchResponse,
     rewrite_query,
 )
-from financial_evidence_agent.retrieval.coverage import EvidenceSide
-from financial_evidence_agent.skills.models import (
+from fra.retrieval.coverage import EvidenceSide
+from fra.skills.models import (
     RecipeBudget,
     ResearchFacet,
     ResearchRecipe,

@@ -6,17 +6,17 @@ import pytest
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 
-import financial_evidence_agent.domain as domain
-from financial_evidence_agent.domain import (
+import fra.domain as domain
+from fra.domain import (
     SourceKind,
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import Chunk, Filing, SkillRun, WebEvidenceRecord
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
-from financial_evidence_agent.storage.run_repositories import ResearchRunRepository, RunStart
-from financial_evidence_agent.storage.web_repositories import (
+from fra.storage.database import create_schema
+from fra.storage.models import Chunk, Filing, SkillRun, WebEvidenceRecord
+from fra.storage.repositories import ChunkToStore, FilingRepository
+from fra.storage.run_repositories import ResearchRunRepository, RunStart
+from fra.storage.web_repositories import (
     SkillRunRepository,
     WebEvidenceRepository,
 )

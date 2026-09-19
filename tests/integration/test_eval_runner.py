@@ -11,8 +11,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.domain import (
+from fra.cli import app
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -24,8 +24,8 @@ from financial_evidence_agent.domain import (
     SourceKind,
     SourceTier,
 )
-from financial_evidence_agent.evals import runner as eval_runner
-from financial_evidence_agent.evals.runner import (
+from fra.evals import runner as eval_runner
+from fra.evals.runner import (
     EvalCase,
     P1EvalCase,
     evaluate_p1_cases,
@@ -33,10 +33,10 @@ from financial_evidence_agent.evals.runner import (
     load_p1_eval_cases,
     run_eval,
 )
-from financial_evidence_agent.graph.models import Dependencies, ResearchResult, SkillRunResult
-from financial_evidence_agent.retrieval.collector import EvidenceCollector
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.web_evidence.source_policy import SourcePolicy
+from fra.graph.models import Dependencies, ResearchResult, SkillRunResult
+from fra.retrieval.collector import EvidenceCollector
+from fra.skills.models import ResearchFacet, SkillName
+from fra.web_evidence.source_policy import SourcePolicy
 
 cli_runner = CliRunner()
 
@@ -219,7 +219,7 @@ def _research_case() -> dict[str, object]:
 
 
 def test_bundled_dataset_has_six_unique_bilingual_p0_cases() -> None:
-    path = Path("src/financial_evidence_agent/evals/dataset.jsonl")
+    path = Path("src/fra/evals/dataset.jsonl")
 
     cases = load_eval_cases(path)
 
@@ -245,7 +245,7 @@ def test_bundled_dataset_has_six_unique_bilingual_p0_cases() -> None:
 
 
 def test_bundled_dataset_has_all_required_strict_p1_cases() -> None:
-    path = Path("src/financial_evidence_agent/evals/dataset.jsonl")
+    path = Path("src/fra/evals/dataset.jsonl")
 
     cases = load_p1_eval_cases(path)
 
@@ -322,7 +322,7 @@ def test_fatal_p1_graph_result_cannot_satisfy_expected_partial_case() -> None:
 
 def test_disallowed_domain_case_crosses_real_policy_boundary_without_persistence() -> None:
     """A fabricated empty bundle would not prove the production URL policy was consulted."""
-    cases = load_p1_eval_cases(Path("src/financial_evidence_agent/evals/dataset.jsonl"))
+    cases = load_p1_eval_cases(Path("src/fra/evals/dataset.jsonl"))
     case = next(item for item in cases if item.id == "p1-disallowed-domain-fallback")
 
     evaluated = evaluate_p1_cases([case])[0]
@@ -338,7 +338,7 @@ def test_disallowed_domain_eval_fails_if_source_policy_is_bypassed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The eval must expose rather than bless a forbidden candidate accepted by mutation."""
-    cases = load_p1_eval_cases(Path("src/financial_evidence_agent/evals/dataset.jsonl"))
+    cases = load_p1_eval_cases(Path("src/fra/evals/dataset.jsonl"))
     case = next(item for item in cases if item.id == "p1-disallowed-domain-fallback")
 
     def bypass_policy(self, *, ticker, url):
@@ -357,7 +357,7 @@ def test_disallowed_domain_eval_fails_if_source_policy_is_bypassed(
 
 def test_p1_eval_uses_real_collector_and_authoritative_source_resolution() -> None:
     """Synthetic coverage flags or unpersisted evidence must not satisfy the eval."""
-    cases = load_p1_eval_cases(Path("src/financial_evidence_agent/evals/dataset.jsonl"))
+    cases = load_p1_eval_cases(Path("src/fra/evals/dataset.jsonl"))
     case = next(item for item in cases if item.id == "p1-earnings-review")
     dependencies, audit = eval_runner._offline_p1_dependencies(case)
 
@@ -558,7 +558,7 @@ def test_eval_cli_runs_bundled_dataset_through_fixture_mcp_and_models(
 
     result = cli_runner.invoke(
         app,
-        ["eval", "--dataset", "src/financial_evidence_agent/evals/dataset.jsonl"],
+        ["eval", "--dataset", "src/fra/evals/dataset.jsonl"],
     )
 
     assert result.exit_code == 0, result.output
@@ -597,7 +597,7 @@ def test_eval_cli_runs_bundled_dataset_through_fixture_mcp_and_models(
 
     repeated = cli_runner.invoke(
         app,
-        ["eval", "--dataset", "src/financial_evidence_agent/evals/dataset.jsonl"],
+        ["eval", "--dataset", "src/fra/evals/dataset.jsonl"],
     )
     assert repeated.exit_code == 0, repeated.output
     assert repeated.output == result.output
@@ -633,9 +633,9 @@ def test_red_all_suite_prints_json_before_settings_or_langfuse_operations(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import financial_evidence_agent.cli as cli_module
-    import financial_evidence_agent.evals.runner as runner_module
-    import financial_evidence_agent.observability as observability_module
+    import fra.cli as cli_module
+    import fra.evals.runner as runner_module
+    import fra.observability as observability_module
 
     red_dataset = _write_dataset(
         tmp_path / "red-all.jsonl",
@@ -690,7 +690,7 @@ def test_eval_cli_langfuse_experiment_is_opt_in_and_requires_credentials(
     for name in ("LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY", "LANGFUSE_HOST"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setattr(
-        "financial_evidence_agent.observability.import_module",
+        "fra.observability.import_module",
         lambda name: pytest.fail(f"Langfuse client construction should not run: {name}"),
     )
 
@@ -715,8 +715,8 @@ def test_eval_cli_routes_all_suites_to_the_comparable_application_experiment(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    import financial_evidence_agent.evals.runner as runner_module
-    import financial_evidence_agent.observability as observability_module
+    import fra.evals.runner as runner_module
+    import fra.observability as observability_module
 
     monkeypatch.setenv("DATABASE_URL", f"sqlite+pysqlite:///{tmp_path / 'eval.sqlite3'}")
     monkeypatch.setenv("OPENAI_API_KEY", "unused-p0-key")
@@ -759,7 +759,7 @@ def test_eval_cli_reports_safe_error_when_langfuse_client_construction_fails(
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "langfuse-secret")
     monkeypatch.setenv("LANGFUSE_HOST", "https://langfuse.invalid")
     monkeypatch.setattr(
-        "financial_evidence_agent.observability.import_module",
+        "fra.observability.import_module",
         lambda name: (_ for _ in ()).throw(ImportError(f"broken import: {name}")),
     )
 
@@ -802,7 +802,7 @@ def test_eval_cli_rejects_invalid_langfuse_flag_combinations_before_settings(
     message: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import financial_evidence_agent.cli as cli_module
+    import fra.cli as cli_module
 
     monkeypatch.setattr(
         cli_module,
@@ -849,7 +849,7 @@ def test_eval_cli_rejects_blank_langfuse_names_before_settings(
     message: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import financial_evidence_agent.cli as cli_module
+    import fra.cli as cli_module
 
     monkeypatch.setattr(
         cli_module,

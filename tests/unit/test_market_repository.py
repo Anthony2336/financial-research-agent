@@ -9,10 +9,10 @@ import pytest
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.market_data.models import MarketBar, MarketDataBundle, MarketSnapshot
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.market_repositories import MarketDataRepository
-from financial_evidence_agent.storage.models import (
+from fra.market_data.models import MarketBar, MarketDataBundle, MarketSnapshot
+from fra.storage.database import create_schema
+from fra.storage.market_repositories import MarketDataRepository
+from fra.storage.models import (
     MarketBarRecord,
     MarketBundleRecord,
     MarketSnapshotRecord,

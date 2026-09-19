@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import (
+from fra.config import Settings
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -19,9 +19,9 @@ from financial_evidence_agent.domain import (
     ResearchQuestion,
     RouterDecision,
 )
-from financial_evidence_agent.graph.models import Dependencies
-from financial_evidence_agent.graph.workflow import run_research
-from financial_evidence_agent.observability import NoopTraceSink, build_trace_sink
+from fra.graph.models import Dependencies
+from fra.graph.workflow import run_research
+from fra.observability import NoopTraceSink, build_trace_sink
 
 
 @dataclass
@@ -469,7 +469,7 @@ def test_trace_sink_is_noop_without_every_langfuse_setting(
     def fail_import(name: str) -> Any:
         raise AssertionError(f"unexpected import: {name}")
 
-    monkeypatch.setattr("financial_evidence_agent.observability.import_module", fail_import)
+    monkeypatch.setattr("fra.observability.import_module", fail_import)
 
     sink = build_trace_sink(
         Settings(

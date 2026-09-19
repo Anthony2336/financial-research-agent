@@ -9,13 +9,15 @@ from pathlib import Path
 import pytest
 from sqlalchemy import create_engine
 
-import financial_evidence_agent.application as application_module
-import financial_evidence_agent.bootstrap as bootstrap_module
-from financial_evidence_agent.application import ResearchApplication, ResearchCommand, ResearchMode
-from financial_evidence_agent.bootstrap import build_research_application
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.context import MemoryHint
-from financial_evidence_agent.domain import (
+import fra.application as application_module
+import fra.bootstrap as bootstrap_module
+import fra.memory.projection as projection_module
+from fra.application import ResearchApplication
+from fra.bootstrap import build_research_application
+from fra.config import Settings
+from fra.context import MemoryHint
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -27,29 +29,29 @@ from financial_evidence_agent.domain import (
     SourceRef,
     SourceRefKind,
 )
-from financial_evidence_agent.graph.models import Dependencies, ResearchResult
-from financial_evidence_agent.graph.workflow import run_research
-from financial_evidence_agent.memory.models import ConversationTurn, SessionMemory
-from financial_evidence_agent.memory.session import SessionMemoryStore
-from financial_evidence_agent.reporting import guard_memo
-from financial_evidence_agent.reporting.p2_guard import guard_p2_report
-from financial_evidence_agent.research_packages.models import (
+from fra.graph.models import Dependencies, ResearchResult
+from fra.graph.workflow import run_research
+from fra.memory.models import ConversationTurn, SessionMemory
+from fra.memory.session import SessionMemoryStore
+from fra.reporting import guard_memo
+from fra.reporting.p2_guard import guard_p2_report
+from fra.research_packages.models import (
     GuardedResearchPackage,
     MultiTickerResearchPackage,
     PackageClaim,
     PeerScope,
 )
-from financial_evidence_agent.research_packages.orchestrator import PeerResearchResult
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.research_packages.orchestrator import PeerResearchResult
+from fra.retrieval.ingest import ingest_fixture
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     InformationSufficiency,
     RecipeProvenance,
     ReportProvenance,
 )
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.storage.cache import InMemoryTtlJsonCache
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
 from integration.test_p1_workflow import P1Recorder
 from integration.test_p1_workflow import _dependencies as _p1_dependencies
 
@@ -378,7 +380,17 @@ def _application(
     )
 
 
-def test_application_writes_guarded_session_turn_only_after_run_finish_succeeds() -> None:
+def test_application_writes_guarded_session_turn_only_after_run_finish_succeeds(
+    monkeypatch,
+) -> None:
+    conversions = []
+    original = ResearchResult.to_run_finish
+
+    def to_run_finish(self, trace_id):
+        conversions.append(self.run_id)
+        return original(self, trace_id)
+
+    monkeypatch.setattr(ResearchResult, "to_run_finish", to_run_finish)
     events: list[str] = []
     repository = _RunRepository(events)
     memory = _RecordingMemoryStore(events)
@@ -394,6 +406,7 @@ def test_application_writes_guarded_session_turn_only_after_run_finish_succeeds(
 
     assert result.status == "completed"
     assert events == ["run_start", "run_finish", "memory_append"]
+    assert conversions == [result.run_id]
     assert memory.turns[0].run_id == result.run_id
     assert memory.turns[0].answer_summary == "Guarded filing evidence."
     assert memory.turns[0].open_questions == ("Is the trend durable?",)
@@ -564,9 +577,9 @@ def test_guarded_turn_summary_drops_urls_source_ids_errors_and_known_other_ticke
         rendered_output="# Guarded report",
     )
 
-    turn = application_module._conversation_turn(  # noqa: SLF001
+    turn = projection_module._conversation_turn(  # noqa: SLF001
         ResearchCommand(ticker="NVDA", request="What changed?", mode=ResearchMode.AUTO),
-        result,
+        projection_module.MemoryProjection(result, result.to_run_finish(None)),
     )
 
     assert turn is not None
@@ -650,13 +663,13 @@ def test_peer_p2_summary_drops_known_non_current_ticker_text_and_claims() -> Non
         rendered_output="# Guarded peer report",
     )
 
-    turn = application_module._conversation_turn(  # noqa: SLF001
+    turn = projection_module._conversation_turn(  # noqa: SLF001
         ResearchCommand(
             ticker="NVDA",
             request="Compare explicit semiconductor peers.",
             mode=ResearchMode.INDUSTRY_RESEARCH,
         ),
-        result,
+        projection_module.MemoryProjection(result, result.to_run_finish(None)),
     )
 
     assert turn is not None

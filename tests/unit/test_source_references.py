@@ -2,9 +2,9 @@
 
 import pytest
 
-import financial_evidence_agent.domain as domain
-from financial_evidence_agent.application import _persisted_claim
-from financial_evidence_agent.domain import Claim, ClaimKind, Confidence
+import fra.domain as domain
+from fra.domain import Claim, ClaimKind, Confidence
+from fra.graph.models import persisted_claim as _persisted_claim
 
 
 def test_filing_and_web_with_the_same_id_encode_to_distinct_keys() -> None:

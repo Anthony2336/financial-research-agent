@@ -1,6 +1,6 @@
 import pytest
 
-from financial_evidence_agent.retrieval.chunking import chunk_sections, parse_supported_sections
+from fra.retrieval.chunking import chunk_sections, parse_supported_sections
 
 
 @pytest.mark.parametrize(

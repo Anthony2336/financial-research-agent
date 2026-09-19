@@ -15,8 +15,8 @@ from langchain_core.exceptions import OutputParserException
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from openai import APIConnectionError, AuthenticationError, RateLimitError
 
-from financial_evidence_agent.context import MemoryHint, TokenCounterError
-from financial_evidence_agent.domain import (
+from fra.context import MemoryHint, TokenCounterError
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -31,13 +31,13 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.graph.models import (
+from fra.graph.models import (
     SkillAnalysisInput,
     SkillModelError,
     SkillModelErrorCode,
     SkillPlanningInput,
 )
-from financial_evidence_agent.model_providers.openai import (
+from fra.model_providers.openai import (
     OpenAIIntentRouter,
     OpenAISkillAnalystModel,
     OpenAISkillPlannerModel,
@@ -46,19 +46,19 @@ from financial_evidence_agent.model_providers.openai import (
     ResearchQuestionPlan,
     ThesisResearchQuestionPlan,
 )
-from financial_evidence_agent.observability import ObservationHandle, bind_trace_run
-from financial_evidence_agent.prompts import (
+from fra.observability import ObservationHandle, bind_trace_run
+from fra.prompts import (
     ANALYST_PROMPT,
     REPAIR_PROMPT,
     ROUTER_PROMPT,
     THESIS_PLANNER_PROMPT,
     PromptBundle,
 )
-from financial_evidence_agent.retrieval.collector import EvidenceBundle
-from financial_evidence_agent.retrieval.coverage import CoverageReport
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.recipes import EARNINGS_REVIEW
-from financial_evidence_agent.skills.schemas import (
+from fra.retrieval.collector import EvidenceBundle
+from fra.retrieval.coverage import CoverageReport
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.recipes import EARNINGS_REVIEW
+from fra.skills.schemas import (
     FinancialDataPoint,
     InformationSufficiency,
     SkillResearchMemo,

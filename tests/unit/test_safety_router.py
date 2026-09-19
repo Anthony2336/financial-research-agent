@@ -1,7 +1,7 @@
 import pytest
 
-from financial_evidence_agent.domain import Intent
-from financial_evidence_agent.safety.router import route_request
+from fra.domain import Intent
+from fra.safety.router import route_request
 
 ADVICE_REQUESTS = [
     "NVDA 现在能买吗？",

@@ -16,8 +16,8 @@ from pydantic import ValidationError
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.retrieval.sec import SecRequestRateLimiter
-from financial_evidence_agent.retrieval.xbrl import (
+from fra.retrieval.sec import SecRequestRateLimiter
+from fra.retrieval.xbrl import (
     CompanyFact,
     HttpCompanyFactsGateway,
     SecCompanyFactsDocument,
@@ -27,10 +27,10 @@ from financial_evidence_agent.retrieval.xbrl import (
     company_facts_url,
     normalize_company_facts,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.fact_repositories import CompanyFactRepository
-from financial_evidence_agent.storage.models import Company, CompanyFactRecord
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.storage.database import create_schema
+from fra.storage.fact_repositories import CompanyFactRepository
+from fra.storage.models import Company, CompanyFactRecord
+from fra.storage.repositories import FilingRepository
 
 FIXTURE = Path("tests/fixtures/sec/companyfacts_nvda.json")
 FETCHED_AT = datetime(2026, 9, 1, 12, 30, tzinfo=UTC)
@@ -481,3 +481,23 @@ def test_http_companyfacts_provider_errors_are_typed_and_sanitized(
 
     assert raised.value.code is expected_code
     assert "private-provider-token" not in str(raised.value)
+
+
+def test_companyfacts_batch_uses_one_insert_without_changing_exact_values() -> None:
+    from sqlalchemy import event
+
+    repository, engine = _repository()
+    facts = normalize_company_facts(_document(), ticker="NVDA", cik=CIK).facts
+    inserts = []
+
+    @event.listens_for(engine, "before_cursor_execute")
+    def capture_insert(conn, cursor, statement, parameters, context, executemany):
+        if statement.startswith("INSERT INTO company_facts"):
+            inserts.append(statement)
+
+    saved = repository.save_facts(facts)
+    assert saved == list(facts)
+    assert len(repository.list_facts("NVDA")) == len(facts)
+    assert len(inserts) == 1
+    assert repository.save_facts(facts) == saved
+    assert len(inserts) == 1

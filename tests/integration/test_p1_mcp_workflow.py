@@ -14,10 +14,10 @@ from pydantic import SecretStr
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-from financial_evidence_agent import bootstrap as bootstrap_module
-from financial_evidence_agent.bootstrap import build_p1_runtime
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import (
+from fra import bootstrap as bootstrap_module
+from fra.bootstrap import build_p1_runtime
+from fra.config import Settings
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -28,26 +28,26 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.graph import FastMCPToolClient, run_research
-from financial_evidence_agent.graph.models import SkillAnalysisInput, SkillPlanningInput
-from financial_evidence_agent.mcp_server.client_adapters import MCPFilingSearch
-from financial_evidence_agent.mcp_server.server import create_server
-from financial_evidence_agent.retrieval.collector import EvidenceCollector
-from financial_evidence_agent.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.skills.models import (
+from fra.graph import FastMCPToolClient, run_research
+from fra.graph.models import SkillAnalysisInput, SkillPlanningInput
+from fra.mcp_server.client_adapters import MCPFilingSearch
+from fra.mcp_server.server import create_server
+from fra.retrieval.collector import EvidenceCollector
+from fra.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
+from fra.retrieval.ingest import ingest_fixture
+from fra.skills.models import (
     RecipeBudget,
     ResearchFacet,
     ResearchRecipe,
     WebUsagePolicy,
 )
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.schemas import (
     InformationSufficiency,
     SkillResearchMemo,
     SkillResearchSection,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
 
 
 def _seed_fixture(database_url: str) -> None:

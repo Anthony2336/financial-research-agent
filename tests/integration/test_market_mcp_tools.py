@@ -11,21 +11,21 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from financial_evidence_agent.market_data.gateway import MarketFetchWrite
-from financial_evidence_agent.market_data.models import (
+from fra.market_data.gateway import MarketFetchWrite
+from fra.market_data.models import (
     MarketBar,
     MarketDataError,
     MarketDataErrorCode,
     MarketSnapshot,
 )
-from financial_evidence_agent.mcp_server.market_tools import RunScopedMarketFetchWriter
-from financial_evidence_agent.mcp_server.server import create_server
-from financial_evidence_agent.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.market_repositories import MarketDataRepository
-from financial_evidence_agent.storage.models import MarketBarRecord, MarketSnapshotRecord
-from financial_evidence_agent.storage.repositories import FilingRepository
-from financial_evidence_agent.storage.run_repositories import ResearchRunRepository, RunStart
+from fra.mcp_server.market_tools import RunScopedMarketFetchWriter
+from fra.mcp_server.server import create_server
+from fra.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
+from fra.storage.database import create_schema
+from fra.storage.market_repositories import MarketDataRepository
+from fra.storage.models import MarketBarRecord, MarketSnapshotRecord
+from fra.storage.repositories import FilingRepository
+from fra.storage.run_repositories import ResearchRunRepository, RunStart
 
 NOW = datetime.now(UTC).replace(microsecond=0)
 

@@ -1,8 +1,8 @@
 from pydantic import SecretStr
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.mcp_server import server as server_module
-from financial_evidence_agent.storage.cache import NoopJsonCache, RedisJsonCache
+from fra.config import Settings
+from fra.mcp_server import server as server_module
+from fra.storage.cache import NoopJsonCache, RedisJsonCache
 
 
 def _run_main(

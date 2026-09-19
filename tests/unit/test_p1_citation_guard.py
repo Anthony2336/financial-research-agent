@@ -8,8 +8,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-import financial_evidence_agent.web_evidence.source_policy as source_policy_module
-from financial_evidence_agent.domain import (
+import fra.web_evidence.source_policy as source_policy_module
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -19,36 +19,36 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.prompts import (
+from fra.prompts import (
     PromptUsage,
     bind_prompt_usage,
     record_prompt_version,
 )
-from financial_evidence_agent.reporting import render_skill_markdown
-from financial_evidence_agent.reporting.guard import guard_skill_memo
-from financial_evidence_agent.retrieval.collector import EvidenceBundle
-from financial_evidence_agent.retrieval.coverage import (
+from fra.reporting import render_skill_markdown
+from fra.reporting.guard import guard_skill_memo
+from fra.retrieval.collector import EvidenceBundle
+from fra.retrieval.coverage import (
     CoverageReport,
     EvidenceAssignment,
     EvidenceSide,
     FacetAssignment,
 )
-from financial_evidence_agent.skills.models import (
+from fra.skills.models import (
     RecipeBudget,
     ResearchFacet,
     ResearchRecipe,
     SkillName,
     WebUsagePolicy,
 )
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.schemas import (
     FinancialDataPoint,
     InformationSufficiency,
     SkillResearchMemo,
     SkillResearchSection,
     VerificationStatus,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
+from fra.storage.database import create_schema
+from fra.storage.web_repositories import WebEvidenceRepository
 
 
 def _recipe(*facets: ResearchFacet) -> ResearchRecipe:

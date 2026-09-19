@@ -4,9 +4,9 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.application import ResearchCommand, ResearchMode
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import (
+from fra.config import Settings
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,

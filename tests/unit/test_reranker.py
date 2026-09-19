@@ -8,9 +8,9 @@ from threading import Event, Lock, Thread
 
 import pytest
 
-import financial_evidence_agent.retrieval.rerank as rerank_module
-from financial_evidence_agent.domain import EvidenceChunk
-from financial_evidence_agent.retrieval.rerank import (
+import fra.retrieval.rerank as rerank_module
+from fra.domain import EvidenceChunk
+from fra.retrieval.rerank import (
     FlashRankReranker,
     IdentityReranker,
     LazyFlashRankReranker,

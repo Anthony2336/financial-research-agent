@@ -7,25 +7,25 @@ from decimal import Decimal
 
 import pytest
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     EvidenceChunk,
     SourceKind,
     SourceRef,
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.research_packages.comparability import (
+from fra.research_packages.comparability import (
     compare_metric_pair,
     compare_metrics,
 )
-from financial_evidence_agent.research_packages.models import (
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
     MetricComparison,
 )
-from financial_evidence_agent.skills.models import SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     InformationSufficiency,
     RecipeProvenance,

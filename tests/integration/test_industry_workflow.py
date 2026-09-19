@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from financial_evidence_agent.research_packages.industry import run_industry_subrun
-from financial_evidence_agent.skills.models import SkillName
-from financial_evidence_agent.skills.recipes import INDUSTRY_RESEARCH
+from fra.research_packages.industry import run_industry_subrun
+from fra.skills.models import SkillName
+from fra.skills.recipes import INDUSTRY_RESEARCH
 
 from .test_p1_workflow import FakeCollector, P1Recorder, _dependencies
 

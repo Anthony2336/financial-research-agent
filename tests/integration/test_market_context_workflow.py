@@ -7,17 +7,17 @@ from hashlib import sha256
 import pytest
 from fastmcp.client.client import CallToolResult
 
-from financial_evidence_agent.application import ResearchCommand, ResearchMode
-from financial_evidence_agent.domain import (
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     SourceKind,
     SourceTier,
     WebEvidence,
     content_addressed_web_evidence_id,
 )
-from financial_evidence_agent.graph.market_workflow import run_market_workflow
-from financial_evidence_agent.graph.models import MarketDependencies
-from financial_evidence_agent.market_data.models import MarketStatus
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.graph.market_workflow import run_market_workflow
+from fra.graph.models import MarketDependencies
+from fra.market_data.models import MarketStatus
+from fra.web_evidence.source_policy import (
     PersistedWebEvidenceValidator,
     SourcePolicy,
 )

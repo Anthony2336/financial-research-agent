@@ -5,13 +5,13 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.application import ResearchMode
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import Intent, RouterDecision
-from financial_evidence_agent.graph.models import MarketDependencies, ResearchResult
-from financial_evidence_agent.safety.router import REFUSAL_TEXT
+from fra import cli as cli_module
+from fra.cli import app
+from fra.config import Settings
+from fra.contracts import ResearchMode
+from fra.domain import Intent, RouterDecision
+from fra.graph.models import MarketDependencies, ResearchResult
+from fra.safety.router import REFUSAL_TEXT
 
 from . import seed_supported_companies
 from .test_market_workflow import (

@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from financial_evidence_agent.evals.p2_runner import load_p2_eval_cases
-from financial_evidence_agent.observability import LangfuseOperationError, sync_langfuse_dataset
+from fra.evals.p2_runner import load_p2_eval_cases
+from fra.observability import LangfuseOperationError, sync_langfuse_dataset
 
 
 @dataclass(slots=True)
@@ -58,7 +58,7 @@ class FakeLangfuseClient:
 
 def test_dataset_sync_upserts_by_case_id_and_flushes_once_per_sync() -> None:
     client = FakeLangfuseClient()
-    cases = load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))
+    cases = load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))
 
     sync_langfuse_dataset(client, "financial-evidence-p2", cases)
     sync_langfuse_dataset(client, "financial-evidence-p2", cases)
@@ -86,7 +86,7 @@ def test_dataset_sync_upserts_by_case_id_and_flushes_once_per_sync() -> None:
 def test_dataset_sync_propagates_non_not_found_lookup_failures() -> None:
     client = FakeLangfuseClient()
     client.get_dataset_error = FakeApiError(status_code=500)
-    cases = load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))[:1]
+    cases = load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))[:1]
 
     with pytest.raises(LangfuseOperationError, match="failed to fetch Langfuse dataset"):
         sync_langfuse_dataset(client, "financial-evidence-p2", cases)

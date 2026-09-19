@@ -1,7 +1,7 @@
 """Unit contracts for the thesis-aware deterministic demo adapter."""
 
-from financial_evidence_agent.context import MemoryHint
-from financial_evidence_agent.graph.demo_models import DeterministicDemoFastModel
+from fra.context import MemoryHint
+from fra.graph.demo_models import DeterministicDemoFastModel
 
 
 def test_demo_planner_builds_queries_from_the_requested_thesis() -> None:

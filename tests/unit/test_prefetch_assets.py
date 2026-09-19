@@ -3,7 +3,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
-import financial_evidence_agent.prefetch_assets as prefetch_module
+import fra.prefetch_assets as prefetch_module
 
 
 def test_prefetch_command_populates_every_configured_cache_without_provider_secrets(

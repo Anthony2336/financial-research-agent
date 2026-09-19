@@ -8,14 +8,14 @@ from pathlib import Path
 
 import pytest
 
-from financial_evidence_agent.domain import Intent, SourceRef, SourceRefKind
-from financial_evidence_agent.evals.p2_runner import (
+from fra.domain import Intent, SourceRef, SourceRefKind
+from fra.evals.p2_runner import (
     P2EvalCase,
     P2EvalResult,
     load_p2_eval_cases,
     score_p2_eval,
 )
-from financial_evidence_agent.research_packages.models import (
+from fra.research_packages.models import (
     ComparabilityStatus,
     ResearchQualityDecision,
 )
@@ -87,7 +87,7 @@ def _industry_case() -> dict[str, object]:
 
 
 def test_p2_dataset_contains_required_case_classes() -> None:
-    cases = load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))
+    cases = load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))
 
     assert {case.kind for case in cases} >= {
         "market_complete",

@@ -11,13 +11,10 @@ from decimal import Decimal
 import pytest
 from integration.test_p1_workflow import P1Recorder, _dependencies
 
-import financial_evidence_agent.application as application_module
-from financial_evidence_agent.application import (
-    ResearchApplication,
-    ResearchCommand,
-    ResearchMode,
-)
-from financial_evidence_agent.domain import (
+import fra.application as application_module
+from fra.application import ResearchApplication
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     ClaimKind,
     Confidence,
     EvidenceChunk,
@@ -28,9 +25,9 @@ from financial_evidence_agent.domain import (
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.memory.models import ConversationTurn, SessionMemory
-from financial_evidence_agent.memory.session import SessionMemoryStore
-from financial_evidence_agent.research_packages.models import (
+from fra.memory.models import ConversationTurn, SessionMemory
+from fra.memory.session import SessionMemoryStore
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
@@ -38,7 +35,7 @@ from financial_evidence_agent.research_packages.models import (
     ResearchQualityDecision,
     ResearchQualityResult,
 )
-from financial_evidence_agent.research_packages.quality import (
+from fra.research_packages.quality import (
     QualityResearchResult,
     QualityResearchRuntime,
     classify_quality_scope,
@@ -46,8 +43,8 @@ from financial_evidence_agent.research_packages.quality import (
     run_quality_screen,
     screen_research_quality,
 )
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     InformationSufficiency,
     RecipeProvenance,
@@ -55,8 +52,8 @@ from financial_evidence_agent.skills.schemas import (
     VerificationStatus,
     financial_observation_id,
 )
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.storage.cache import InMemoryTtlJsonCache
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 
 def _ref(
@@ -661,7 +658,7 @@ class _TraceSink:
     ) -> Iterator[_Observation]:
         del input
         root = _Observation(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             metadata=dict(metadata),
             trace_id=f"trace-{run_id}",
@@ -747,7 +744,7 @@ def test_quality_result_uses_common_application_persistence_and_trace_lifecycle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "financial_evidence_agent.research_packages.quality.run_company_deep_research_subrun",
+        "fra.research_packages.quality.run_company_deep_research_subrun",
         lambda *args, **kwargs: pytest.fail("guarded package should have been reused"),
     )
     filing_only_package = _package(

@@ -2,9 +2,9 @@
 
 import pytest
 
-from financial_evidence_agent.domain import Intent
-from financial_evidence_agent.graph import SkillDispatchError, dispatch_skill_recipes
-from financial_evidence_agent.skills.models import SkillName
+from fra.domain import Intent
+from fra.graph import SkillDispatchError, dispatch_skill_recipes
+from fra.skills.models import SkillName
 
 
 def test_company_profile_dispatch_is_exact_and_stable() -> None:

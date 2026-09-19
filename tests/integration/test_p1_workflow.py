@@ -12,8 +12,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-from financial_evidence_agent.context import BudgetAuthority, BudgetLimits
-from financial_evidence_agent.domain import (
+from fra.context import BudgetAuthority, BudgetLimits
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -27,32 +27,32 @@ from financial_evidence_agent.domain import (
     WebEvidence,
     content_addressed_web_evidence_id,
 )
-from financial_evidence_agent.graph import Dependencies, run_research
-from financial_evidence_agent.graph.models import SkillAnalysisInput, SkillPlanningInput
-from financial_evidence_agent.reporting import guard_skill_memo
-from financial_evidence_agent.retrieval.collector import (
+from fra.graph import Dependencies, run_research
+from fra.graph.models import SkillAnalysisInput, SkillPlanningInput
+from fra.reporting import guard_skill_memo
+from fra.retrieval.collector import (
     CollectionErrorCode,
     EvidenceBundle,
     EvidenceCollectionError,
 )
-from financial_evidence_agent.retrieval.coverage import (
+from fra.retrieval.coverage import (
     CoverageReport,
     EvidenceAssignment,
     EvidenceSide,
     FacetAssignment,
 )
-from financial_evidence_agent.skills.models import ResearchRecipe, SkillName
-from financial_evidence_agent.skills.recipes import INDUSTRY_RESEARCH, P1_RECIPES
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchRecipe, SkillName
+from fra.skills.recipes import INDUSTRY_RESEARCH, P1_RECIPES
+from fra.skills.schemas import (
     FinancialDataPoint,
     InformationSufficiency,
     SkillResearchMemo,
     SkillResearchSection,
     VerificationStatus,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.storage.database import create_schema
+from fra.storage.web_repositories import WebEvidenceRepository
+from fra.web_evidence.source_policy import (
     PersistedWebEvidenceValidator,
     SourcePolicy,
 )

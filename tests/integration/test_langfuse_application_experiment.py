@@ -7,17 +7,17 @@ from pathlib import Path
 
 from langfuse.experiment import Evaluation, ExperimentItemResult, ExperimentResult
 
-from financial_evidence_agent.application import ResearchCommand
-from financial_evidence_agent.evals.p2_runner import (
+from fra.contracts import ResearchCommand
+from fra.evals.p2_runner import (
     DeterministicP2ApplicationFactory,
     load_p2_eval_cases,
     run_application_experiment,
 )
-from financial_evidence_agent.evals.runner import (
+from fra.evals.runner import (
     load_comparable_application_experiment_cases,
     run_comparable_application_experiment,
 )
-from financial_evidence_agent.observability import sync_langfuse_dataset
+from fra.observability import sync_langfuse_dataset
 
 
 @dataclass(slots=True)
@@ -126,7 +126,7 @@ def test_application_experiment_runs_real_p2_cases_for_dataset_items() -> None:
     client = FakeLangfuseClient()
     cases = [
         case
-        for case in load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))
+        for case in load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))
         if case.id
         in {
             "market-complete",
@@ -186,8 +186,8 @@ def test_application_experiment_runs_real_p2_cases_for_dataset_items() -> None:
 def test_comparable_experiment_syncs_canonical_p0_p1_and_p2_application_cases() -> None:
     """Dropping one scenario or bypassing its application run breaks comparison coverage."""
     cases = load_comparable_application_experiment_cases(
-        Path("src/financial_evidence_agent/evals/dataset.jsonl"),
-        Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"),
+        Path("src/fra/evals/dataset.jsonl"),
+        Path("src/fra/evals/p2_dataset.jsonl"),
     )
     client = FakeLangfuseClient()
 

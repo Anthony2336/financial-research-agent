@@ -93,7 +93,7 @@ jobs:
           docker compose up -d --wait postgres redis
           docker compose --profile cli build cli
           docker compose --profile cli run --rm cli db-upgrade
-          docker compose --profile cli run --rm cli ingest --fixture /app/src/financial_evidence_agent/resources/nvda_10q.html --ticker NVDA --form 10-Q
+          docker compose --profile cli run --rm cli ingest --fixture /app/src/fra/resources/nvda_10q.html --ticker NVDA --form 10-Q
           OFFLINE_DEMO=true docker compose --profile cli run --rm cli research NVDA --thesis "Do cited disclosures support sustained data center demand?"
           retrieval_cache_key="$(docker compose exec -T redis redis-cli --raw --scan --pattern 'fea:retrieval:NVDA-v1:NVDA:*' | head -n 1)"
           test -n "$retrieval_cache_key"

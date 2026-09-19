@@ -5,8 +5,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from financial_evidence_agent.market_data.gateway import MarketDataGateway
-from financial_evidence_agent.market_data.models import (
+from fra.market_data.gateway import MarketDataGateway
+from fra.market_data.models import (
     MarketBar,
     MarketDataError,
     MarketDataErrorCode,

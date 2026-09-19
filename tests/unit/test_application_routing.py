@@ -7,20 +7,16 @@ from typing import Any
 
 import pytest
 
-from financial_evidence_agent import application as application_module
-from financial_evidence_agent.application import (
-    ResearchApplication,
-    ResearchCommand,
-    ResearchMode,
-    resolve_effective_intent,
-)
-from financial_evidence_agent.domain import (
+from fra import application as application_module
+from fra.application import ResearchApplication, resolve_effective_intent
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Intent,
     IntentRoutingError,
     IntentRoutingErrorCode,
     RouterDecision,
 )
-from financial_evidence_agent.graph.models import ResearchResult
+from fra.graph.models import ResearchResult
 
 
 def test_auto_uses_one_structured_route_for_unmatched_company_question() -> None:

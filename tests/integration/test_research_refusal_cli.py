@@ -1,10 +1,10 @@
 import pytest
 from typer.testing import CliRunner
 
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.application import configuration_free_refusal
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.safety.router import (
+from fra import cli as cli_module
+from fra.application import configuration_free_refusal
+from fra.cli import app
+from fra.safety.router import (
     ARBITRARY_URL_REFUSAL_TEXT,
     PROMPT_INJECTION_TEXT,
     REFUSAL_TEXT,
@@ -134,9 +134,9 @@ def test_research_cli_starts_valid_research_on_the_demo_path(tmp_path, monkeypat
 
     from sqlalchemy import create_engine
 
-    from financial_evidence_agent.retrieval.ingest import ingest_fixture
-    from financial_evidence_agent.storage.database import create_schema
-    from financial_evidence_agent.storage.repositories import FilingRepository
+    from fra.retrieval.ingest import ingest_fixture
+    from fra.storage.database import create_schema
+    from fra.storage.repositories import FilingRepository
 
     database_url = f"sqlite+pysqlite:///{tmp_path / 'demo.sqlite3'}"
     engine = create_engine(database_url)

@@ -7,13 +7,13 @@ from hashlib import sha256
 
 import pytest
 
-from financial_evidence_agent.market_data.models import (
+from fra.market_data.models import (
     MarketBar,
     MarketDataBundle,
     MarketSnapshot,
     MarketStatus,
 )
-from financial_evidence_agent.reporting.market_guard import guard_market_bundle
+from fra.reporting.market_guard import guard_market_bundle
 
 NOW = datetime(2026, 8, 31, 14, 1, tzinfo=UTC)
 

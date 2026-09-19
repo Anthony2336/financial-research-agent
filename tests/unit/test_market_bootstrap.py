@@ -4,20 +4,20 @@ from decimal import Decimal
 
 from pydantic import SecretStr
 
-from financial_evidence_agent.bootstrap import (
+from fra.bootstrap import (
     build_market_gateway,
     build_market_runtime,
     build_mcp_server,
 )
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.market_data.gateway import NoopMarketFetchWriter
-from financial_evidence_agent.storage.cache import (
+from fra.config import Settings
+from fra.market_data.gateway import NoopMarketFetchWriter
+from fra.storage.cache import (
     InMemoryTtlJsonCache,
     MarketDataJsonCache,
     NoopJsonCache,
 )
-from financial_evidence_agent.storage.market_repositories import MarketDataRepository
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.storage.market_repositories import MarketDataRepository
+from fra.web_evidence.source_policy import (
     DEFAULT_STANDARD_AUTHORITY_DOMAINS,
 )
 
@@ -53,7 +53,7 @@ def _settings() -> Settings:
 
 
 def test_build_market_gateway_injects_concrete_cache_and_explicit_fetch_writer() -> None:
-    """Application composition must not silently fall back to Task 8 no-op cache wiring."""
+    """Market application composition must provide a working cache."""
     CapturingProvider.instances.clear()
     CapturingGateway.instances.clear()
     settings = _settings()

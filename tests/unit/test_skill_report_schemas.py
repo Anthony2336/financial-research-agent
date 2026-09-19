@@ -6,8 +6,8 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialDataPoint,
     InformationSufficiency,
     SkillResearchMemo,

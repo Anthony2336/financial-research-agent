@@ -7,8 +7,8 @@ import os
 import httpx
 import pytest
 
-from financial_evidence_agent.market_data.alpaca import AlpacaMarketDataProvider
-from financial_evidence_agent.market_data.models import MarketStatus
+from fra.market_data.alpaca import AlpacaMarketDataProvider
+from fra.market_data.models import MarketStatus
 
 
 def _require_live_values(*names: str) -> list[str]:

@@ -15,39 +15,36 @@ from pydantic import SecretStr
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-import financial_evidence_agent.bootstrap as bootstrap_module
-import financial_evidence_agent.observability as observability_module
-from financial_evidence_agent.application import (
-    ResearchCommand,
-    ResearchMode,
-    current_research_context,
-)
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import (
+import fra.bootstrap as bootstrap_module
+import fra.observability as observability_module
+from fra.config import Settings
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
     ResearchMemo,
     ResearchQuestion,
 )
-from financial_evidence_agent.model_providers.openai import (
+from fra.execution import current_research_context
+from fra.model_providers.openai import (
     ResearchQuestionPlan,
     ThesisResearchQuestionPlan,
 )
-from financial_evidence_agent.prompts import RESEARCH_PROMPT_VERSION
-from financial_evidence_agent.retrieval.indexing import HashEmbeddingProvider
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.retrieval.rerank import IdentityReranker
-from financial_evidence_agent.skills.schemas import (
+from fra.prompts import RESEARCH_PROMPT_VERSION
+from fra.retrieval.indexing import HashEmbeddingProvider
+from fra.retrieval.ingest import ingest_fixture
+from fra.retrieval.rerank import IdentityReranker
+from fra.skills.schemas import (
     InformationSufficiency,
     SkillResearchMemo,
     SkillResearchSection,
 )
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import ResearchRun, SkillRun
-from financial_evidence_agent.storage.repositories import FilingRepository
-from financial_evidence_agent.storage.run_repositories import ResearchRunRepository
+from fra.storage.cache import InMemoryTtlJsonCache
+from fra.storage.database import create_schema
+from fra.storage.models import ResearchRun, SkillRun
+from fra.storage.repositories import FilingRepository
+from fra.storage.run_repositories import ResearchRunRepository
 
 
 class ExportedObservation:
@@ -460,7 +457,7 @@ def test_production_composition_correlates_p1_persistence_and_observation_tree(
     assert len(exporter.roots) == 1
     root = exporter.roots[0]
     observations = _descendants(root)
-    assert root.name == "financial-evidence-agent.run"
+    assert root.name == "financial-research-agent.run"
     assert root.output == {"status": result.status}
     assert root.metadata["effective_intent"] == "company_profile_request"
     assert root.metadata["recipe_names"] == [run.recipe_name.value for run in result.skill_runs]
@@ -609,7 +606,7 @@ class PeerTraceSink:
     def run(self, *, run_id: str, input: object, metadata: Mapping[str, object]):
         del input
         root = ExportedObservation(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             metadata={**dict(metadata), "run_id": run_id},
             trace_id=f"trace-{run_id}",

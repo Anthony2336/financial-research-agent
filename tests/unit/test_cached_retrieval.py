@@ -3,8 +3,8 @@ from hashlib import sha256
 
 import pytest
 
-from financial_evidence_agent.domain import EvidenceChunk
-from financial_evidence_agent.retrieval.hybrid import HybridRetriever
+from fra.domain import EvidenceChunk
+from fra.retrieval.hybrid import HybridRetriever
 
 
 def _chunk(
@@ -124,7 +124,7 @@ def test_cache_hit_skips_repository_dense_sparse_and_reranker_work(monkeypatch) 
     def fail_sparse(*args, **kwargs):
         raise AssertionError("BM25 must not run on a cache hit")
 
-    monkeypatch.setattr("financial_evidence_agent.retrieval.hybrid._sparse_ranking", fail_sparse)
+    monkeypatch.setattr("fra.retrieval.hybrid._sparse_ranking", fail_sparse)
     retriever = HybridRetriever(
         repository,
         embeddings,

@@ -10,14 +10,10 @@ from decimal import Decimal
 
 from typer.testing import CliRunner
 
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.application import (
-    P2IndustryResult,
-    ResearchApplication,
-    ResearchCommand,
-    ResearchMode,
-)
-from financial_evidence_agent.domain import (
+from fra import cli as cli_module
+from fra.application import P2IndustryResult, ResearchApplication
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -29,17 +25,17 @@ from financial_evidence_agent.domain import (
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.graph.models import ResearchResult, SkillRunResult
-from financial_evidence_agent.research_packages.models import (
+from fra.graph.models import ResearchResult, SkillRunResult
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
     PackageClaim,
     PeerScope,
 )
-from financial_evidence_agent.research_packages.quality import QualityResearchResult
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.research_packages.quality import QualityResearchResult
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     GuardedFinancialDataPoint,
     GuardedSkillMemo,
@@ -51,7 +47,7 @@ from financial_evidence_agent.skills.schemas import (
     VerificationStatus,
     financial_observation_id,
 )
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 runner = CliRunner()
 
@@ -193,8 +189,8 @@ def _industry_result(
 
 
 def _failed_p2_industry_result(ticker: str) -> P2IndustryResult:
-    from financial_evidence_agent.reporting.p2_guard import guard_p2_report
-    from financial_evidence_agent.research_packages.industry import build_industry_package
+    from fra.reporting.p2_guard import guard_p2_report
+    from fra.research_packages.industry import build_industry_package
 
     raw = _industry_result(
         ticker,
@@ -403,7 +399,7 @@ class _TraceSink:
     ) -> Iterator[_Observation]:
         del input
         root = _Observation(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             metadata=dict(metadata),
             trace_id=f"trace-{run_id}",

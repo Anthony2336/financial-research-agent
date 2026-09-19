@@ -15,42 +15,42 @@ from pydantic import ValidationError
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 
-import financial_evidence_agent.memory.research as research_memory_module
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import (
+import fra.memory.research as research_memory_module
+from fra.config import Settings
+from fra.domain import (
     SourceKind,
     SourceRef,
     SourceRefKind,
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.memory.privacy import contains_private_financial_or_secret
-from financial_evidence_agent.memory.privacy_relations import (
+from fra.memory.privacy import contains_private_financial_or_secret
+from fra.memory.privacy_relations import (
     contains_private_named_finance,
 )
-from financial_evidence_agent.memory.research import (
+from fra.memory.research import (
     ResearchMemory,
     ResearchMemoryKind,
     ResearchMemoryService,
     is_research_memory_summary_eligible,
 )
-from financial_evidence_agent.memory.session import is_session_memory_eligible_request
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.memory_repositories import ResearchMemoryRepository
-from financial_evidence_agent.storage.models import (
+from fra.memory.session import is_session_memory_eligible_request
+from fra.storage.database import create_schema
+from fra.storage.memory_repositories import ResearchMemoryRepository
+from fra.storage.models import (
     ClaimRecord,
     ResearchMemoryRecord,
     WebEvidenceRecord,
 )
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
-from financial_evidence_agent.storage.run_repositories import (
+from fra.storage.repositories import ChunkToStore, FilingRepository
+from fra.storage.run_repositories import (
     PersistedClaim,
     ResearchRunRepository,
     RunFinish,
     RunStart,
 )
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.storage.web_repositories import WebEvidenceRepository
+from fra.web_evidence.source_policy import (
     PersistedWebEvidenceValidator,
     SourcePolicy,
 )

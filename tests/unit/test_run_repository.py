@@ -4,10 +4,10 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-import financial_evidence_agent.domain as domain
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import ClaimRecord, ResearchRun
-from financial_evidence_agent.storage.run_repositories import (
+import fra.domain as domain
+from fra.storage.database import create_schema
+from fra.storage.models import ClaimRecord, ResearchRun
+from fra.storage.run_repositories import (
     PersistedClaim,
     ResearchRunRepository,
     RunFinish,

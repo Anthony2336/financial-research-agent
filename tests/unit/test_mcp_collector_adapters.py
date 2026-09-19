@@ -11,31 +11,31 @@ import pytest
 from fastmcp.client.client import CallToolResult
 from pydantic import ValidationError
 
-from financial_evidence_agent.context import (
+from fra.context import (
     BudgetAuthority,
     BudgetExhaustedError,
     BudgetLimits,
 )
-from financial_evidence_agent.domain import (
+from fra.domain import (
     EvidenceChunk,
     SourceKind,
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.mcp_server.client_adapters import (
+from fra.mcp_server.client_adapters import (
     MCPFilingSearch,
     MCPWebSearch,
 )
-from financial_evidence_agent.observability import ObservationHandle, bind_trace_run
-from financial_evidence_agent.retrieval.collector import (
+from fra.observability import ObservationHandle, bind_trace_run
+from fra.retrieval.collector import (
     EvidenceQuery,
     RetrievalErrorCode,
     WebSearchRequest,
     rewrite_query,
 )
-from financial_evidence_agent.retrieval.coverage import EvidenceSide
-from financial_evidence_agent.skills.models import ResearchFacet, WebUsagePolicy
-from financial_evidence_agent.storage.run_repositories import SourceFetchWrite
+from fra.retrieval.coverage import EvidenceSide
+from fra.skills.models import ResearchFacet, WebUsagePolicy
+from fra.storage.run_repositories import SourceFetchWrite
 
 
 @dataclass(frozen=True)

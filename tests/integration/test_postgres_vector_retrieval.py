@@ -16,15 +16,15 @@ from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import SourceRef, SourceRefKind
-from financial_evidence_agent.memory.research import ResearchMemoryKind
-from financial_evidence_agent.retrieval.hybrid import HybridRetriever
-from financial_evidence_agent.retrieval.indexing import EmbeddingIndexer
-from financial_evidence_agent.storage.memory_repositories import ResearchMemoryRepository
-from financial_evidence_agent.storage.models import ResearchMemoryRecord
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
-from financial_evidence_agent.storage.run_repositories import (
+from fra.config import Settings
+from fra.domain import SourceRef, SourceRefKind
+from fra.memory.research import ResearchMemoryKind
+from fra.retrieval.hybrid import HybridRetriever
+from fra.retrieval.indexing import EmbeddingIndexer
+from fra.storage.memory_repositories import ResearchMemoryRepository
+from fra.storage.models import ResearchMemoryRecord
+from fra.storage.repositories import ChunkToStore, FilingRepository
+from fra.storage.run_repositories import (
     PersistedClaim,
     ResearchRunRepository,
     RunFinish,

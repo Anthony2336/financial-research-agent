@@ -9,7 +9,7 @@ from hashlib import sha256
 
 import pytest
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     ClaimKind,
     Confidence,
     EvidenceChunk,
@@ -21,13 +21,13 @@ from financial_evidence_agent.domain import (
     canonicalize_source_url,
     content_addressed_web_evidence_id,
 )
-from financial_evidence_agent.reporting.p2_guard import (
+from fra.reporting.p2_guard import (
     GuardedP2Report,
     guard_p2_report,
     p2_persisted_claims,
 )
-from financial_evidence_agent.reporting.p2_render import render_p2_markdown
-from financial_evidence_agent.research_packages.models import (
+from fra.reporting.p2_render import render_p2_markdown
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
@@ -38,8 +38,8 @@ from financial_evidence_agent.research_packages.models import (
     ResearchQualityDecision,
     ResearchQualityResult,
 )
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     InformationSufficiency,
     RecipeProvenance,
@@ -47,7 +47,7 @@ from financial_evidence_agent.skills.schemas import (
     VerificationStatus,
     financial_observation_id,
 )
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.web_evidence.source_policy import (
     PersistedWebEvidenceValidator,
     PolicyValidatedWebEvidence,
     build_industry_source_policy,

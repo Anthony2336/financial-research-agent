@@ -9,12 +9,12 @@ import pytest
 from sqlalchemy import create_engine, inspect, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.retrieval.hybrid import HybridRetriever
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.storage.cache import RedisJsonCache
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import Chunk, Filing, ResearchCorpus
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
+from fra.retrieval.hybrid import HybridRetriever
+from fra.retrieval.ingest import ingest_fixture
+from fra.storage.cache import RedisJsonCache
+from fra.storage.database import create_schema
+from fra.storage.models import Chunk, Filing, ResearchCorpus
+from fra.storage.repositories import ChunkToStore, FilingRepository
 
 
 class RecordingEmbeddings:

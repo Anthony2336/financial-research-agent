@@ -9,9 +9,9 @@ from pathlib import Path
 import httpx
 import pytest
 
-from financial_evidence_agent.market_data.alpaca import AlpacaMarketDataProvider
-from financial_evidence_agent.market_data.gateway import MarketFetchWrite
-from financial_evidence_agent.market_data.models import (
+from fra.market_data.alpaca import AlpacaMarketDataProvider
+from fra.market_data.gateway import MarketFetchWrite
+from fra.market_data.models import (
     MarketDataError,
     MarketDataErrorCode,
     MarketStatus,

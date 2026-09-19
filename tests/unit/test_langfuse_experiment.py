@@ -8,13 +8,13 @@ from pathlib import Path
 import pytest
 from langfuse.experiment import Evaluation, ExperimentItemResult, ExperimentResult
 
-from financial_evidence_agent.application import ResearchCommand
-from financial_evidence_agent.evals.p2_runner import (
+from fra.contracts import ResearchCommand
+from fra.evals.p2_runner import (
     DeterministicP2ApplicationFactory,
     load_p2_eval_cases,
     run_application_experiment,
 )
-from financial_evidence_agent.observability import LangfuseOperationError
+from fra.observability import LangfuseOperationError
 
 
 @dataclass(slots=True)
@@ -119,7 +119,7 @@ def _dataset_item(case_id: str) -> FakeDatasetItem:
     case = next(
         candidate
         for candidate in load_p2_eval_cases(
-            Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+            Path("src/fra/evals/p2_dataset.jsonl")
         )
         if candidate.id == case_id
     )
@@ -136,7 +136,7 @@ def _cases(*case_ids: str):
     return [
         candidate
         for candidate in load_p2_eval_cases(
-            Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+            Path("src/fra/evals/p2_dataset.jsonl")
         )
         if candidate.id in allowed
     ]

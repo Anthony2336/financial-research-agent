@@ -4,14 +4,14 @@ from datetime import date
 
 import pytest
 
-from financial_evidence_agent.domain import EvidenceChunk, Intent, ResearchQuestion, SourceKind
-from financial_evidence_agent.retrieval.coverage import (
+from fra.domain import EvidenceChunk, Intent, ResearchQuestion, SourceKind
+from fra.retrieval.coverage import (
     EvidenceAssignment,
     EvidenceSide,
     FacetAssignment,
     assess_coverage,
 )
-from financial_evidence_agent.skills.models import (
+from fra.skills.models import (
     RecipeBudget,
     ResearchFacet,
     ResearchRecipe,

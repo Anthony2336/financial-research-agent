@@ -12,6 +12,7 @@ build
 wheels
 tests
 docs
+doc
 __pycache__/
 *.py[oc]
 *.egg-info

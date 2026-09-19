@@ -1,4 +1,4 @@
-"""Opt-in verification of Task 5 against a running local Postgres/pgvector service."""
+"""Fixture ingestion against a running PostgreSQL/pgvector service."""
 
 import os
 from pathlib import Path
@@ -8,10 +8,10 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.config import Settings
+from fra.retrieval.ingest import ingest_fixture
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
 
 
 @pytest.fixture

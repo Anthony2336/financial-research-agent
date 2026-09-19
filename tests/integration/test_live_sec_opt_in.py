@@ -18,12 +18,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 from typer.testing import CliRunner
 
-import financial_evidence_agent.retrieval.ingest as ingest_module
-import financial_evidence_agent.storage.repositories as repositories_module
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.retrieval.indexing import EmbeddingIndexer
-from financial_evidence_agent.retrieval.ingest import IngestSummary, ingest_sec
-from financial_evidence_agent.retrieval.sec import (
+import fra.retrieval.ingest as ingest_module
+import fra.storage.repositories as repositories_module
+from fra.cli import app
+from fra.retrieval.indexing import EmbeddingIndexer
+from fra.retrieval.ingest import IngestSummary, ingest_sec
+from fra.retrieval.sec import (
     HttpSecGateway,
     SecFilingCandidate,
     SecFilingDocument,
@@ -31,16 +31,16 @@ from financial_evidence_agent.retrieval.sec import (
     SecProviderErrorCode,
     SecRequestRateLimiter,
 )
-from financial_evidence_agent.retrieval.xbrl import (
+from fra.retrieval.xbrl import (
     HttpCompanyFactsGateway,
     SecCompanyFactsDocument,
     XbrlError,
     company_facts_url,
     normalize_company_facts,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.fact_repositories import CompanyFactRepository
-from financial_evidence_agent.storage.models import (
+from fra.storage.database import create_schema
+from fra.storage.fact_repositories import CompanyFactRepository
+from fra.storage.models import (
     Chunk,
     Company,
     CompanyFactRecord,
@@ -51,18 +51,18 @@ from financial_evidence_agent.storage.models import (
     SkillRun,
     SourceFetchRecord,
 )
-from financial_evidence_agent.storage.repositories import (
+from fra.storage.repositories import (
     EmbeddingStateConflictError,
     FilingRepository,
     FilingToStore,
 )
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
-from financial_evidence_agent.web_evidence.gateway import AllowlistedWebGateway
-from financial_evidence_agent.web_evidence.providers import (
+from fra.storage.web_repositories import WebEvidenceRepository
+from fra.web_evidence.gateway import AllowlistedWebGateway
+from fra.web_evidence.providers import (
     HttpxRedirectResolver,
     TavilySearchProvider,
 )
-from financial_evidence_agent.web_evidence.source_policy import build_standard_source_policy
+from fra.web_evidence.source_policy import build_standard_source_policy
 
 runner = CliRunner()
 

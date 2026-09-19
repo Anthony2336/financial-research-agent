@@ -7,7 +7,7 @@ from decimal import Decimal
 
 import pytest
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -21,14 +21,14 @@ from financial_evidence_agent.domain import (
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.graph.models import ResearchResult, SkillRunResult
-from financial_evidence_agent.research_packages.industry import (
+from fra.graph.models import ResearchResult, SkillRunResult
+from fra.research_packages.industry import (
     IndustrySubrunProtocolError,
     build_industry_package,
     run_industry_subrun,
 )
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     GuardedSkillMemo,
     GuardedSkillResearchMemo,
     InformationSufficiency,
@@ -36,7 +36,7 @@ from financial_evidence_agent.skills.schemas import (
     ReportProvenance,
     SkillResearchSection,
 )
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 
 def _filing(source_id: str = "sec-industry") -> EvidenceChunk:
@@ -193,7 +193,7 @@ class _NoCallAnalyst:
 
 
 def _refusal_dependencies():
-    from financial_evidence_agent.graph.models import Dependencies
+    from fra.graph.models import Dependencies
 
     mcp = _NoCallMCP()
     fast_model = _NoCallFastModel()
@@ -219,7 +219,7 @@ def test_industry_subrun_converts_only_guarded_sources_into_one_package(
         guarded_memo=guarded,
     )
     monkeypatch.setattr(
-        "financial_evidence_agent.research_packages.industry.run_research",
+        "fra.research_packages.industry.run_research",
         lambda *args, **kwargs: _result(run),
     )
 
@@ -258,7 +258,7 @@ def test_industry_subrun_returns_an_insufficient_empty_package_when_no_guarded_m
         errors=["INSUFFICIENT_EVIDENCE", "COVERAGE: missing_facet"],
     )
     monkeypatch.setattr(
-        "financial_evidence_agent.research_packages.industry.run_research",
+        "fra.research_packages.industry.run_research",
         lambda *args, **kwargs: _result(run),
     )
 
@@ -341,7 +341,7 @@ def test_industry_subrun_raises_typed_error_for_non_refusal_non_industry_result(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "financial_evidence_agent.research_packages.industry.run_research",
+        "fra.research_packages.industry.run_research",
         lambda *args, **kwargs: ResearchResult(
             status="declined",
             ticker="NVDA",

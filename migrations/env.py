@@ -5,8 +5,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.storage.models import Base
+from fra.config import Settings
+from fra.storage.models import Base
 
 config = context.config
 

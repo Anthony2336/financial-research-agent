@@ -2,8 +2,8 @@
 
 from sqlalchemy import create_engine
 
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
 
 
 def seed_supported_companies(database_url: str, *tickers: str) -> None:

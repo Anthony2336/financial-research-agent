@@ -8,15 +8,15 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.domain import EvidenceChunk
-from financial_evidence_agent.retrieval.hybrid import (
+from fra.domain import EvidenceChunk
+from fra.retrieval.hybrid import (
     HashEmbeddingProvider,
     HybridRetriever,
 )
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import Filing
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
+from fra.retrieval.ingest import ingest_fixture
+from fra.storage.database import create_schema
+from fra.storage.models import Filing
+from fra.storage.repositories import ChunkToStore, FilingRepository
 
 
 class _RepositoryWithDistractors:

@@ -12,16 +12,12 @@ from typing import Any
 
 import pytest
 
-import financial_evidence_agent.application as application_module
-from financial_evidence_agent.application import (
-    ResearchApplication,
-    ResearchCommand,
-    ResearchMode,
-    current_research_context,
-)
-from financial_evidence_agent.bootstrap import ResearchRuntime
-from financial_evidence_agent.context import BudgetLimits
-from financial_evidence_agent.domain import (
+import fra.application as application_module
+from fra.application import ResearchApplication
+from fra.bootstrap import ResearchRuntime
+from fra.context import BudgetLimits
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -31,14 +27,15 @@ from financial_evidence_agent.domain import (
     ResearchQuestion,
     RouterDecision,
 )
-from financial_evidence_agent.graph.models import Dependencies
-from financial_evidence_agent.observability import (
+from fra.execution import current_research_context
+from fra.graph.models import Dependencies
+from fra.observability import (
     LangfuseTraceSink,
     RunAccounting,
     bind_trace_run,
 )
-from financial_evidence_agent.safety.router import REFUSAL_TEXT
-from financial_evidence_agent.storage.run_repositories import RunFinish
+from fra.safety.router import REFUSAL_TEXT
+from fra.storage.run_repositories import RunFinish
 
 
 @dataclass
@@ -103,7 +100,7 @@ class FakeTraceSink:
         metadata: dict[str, object],
     ) -> Iterator[FakeObservation]:
         root = FakeObservation(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             input=input,
             metadata=dict(metadata),
@@ -309,7 +306,7 @@ def test_one_run_has_root_and_typed_children() -> None:
     result = application.run(_company_command())
 
     root = sink.single_root()
-    assert root.name == "financial-evidence-agent.run"
+    assert root.name == "financial-research-agent.run"
     assert root.metadata["run_id"] == result.run_id == "run-123"
     assert {child.kind for child in _descendants(root)} >= {
         "guardrail",
@@ -543,7 +540,7 @@ class _FailingChildTraceSink(FakeTraceSink):
         self, *, run_id: str, input: object, metadata: dict[str, object]
     ) -> Iterator[FakeObservation]:
         root = _FailingChildRoot(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             input=input,
             metadata=dict(metadata),
@@ -570,7 +567,7 @@ class _FailingRootUpdateTraceSink(FakeTraceSink):
         self, *, run_id: str, input: object, metadata: dict[str, object]
     ) -> Iterator[FakeObservation]:
         root = _FailingRootUpdate(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             input=input,
             metadata=dict(metadata),
@@ -1118,7 +1115,7 @@ def test_langfuse_v4_exporter_builds_one_agent_tree() -> None:
     assert len(client.roots) == 1
     root = client.roots[0]
     assert root.kind == "agent"
-    assert root.name == "financial-evidence-agent.run"
+    assert root.name == "financial-research-agent.run"
     assert root.metadata["run_id"] == result.run_id
     assert {child.kind for child in _descendants(root)} >= {
         "guardrail",

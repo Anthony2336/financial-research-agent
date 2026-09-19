@@ -73,9 +73,9 @@ def test_wheel_and_sdist_contain_bundled_dataset_and_fixture(tmp_path: Path) -> 
     wheel = next(output_directory.glob("*.whl"))
     source_distribution = next(output_directory.glob("*.tar.gz"))
     expected_suffixes = {
-        "financial_evidence_agent/evals/dataset.jsonl",
-        "financial_evidence_agent/evals/p2_dataset.jsonl",
-        "financial_evidence_agent/resources/nvda_10q.html",
+        "fra/evals/dataset.jsonl",
+        "fra/evals/p2_dataset.jsonl",
+        "fra/resources/nvda_10q.html",
     }
     with zipfile.ZipFile(wheel) as archive:
         wheel_names = set(archive.namelist())
@@ -91,7 +91,7 @@ def test_wheel_and_sdist_contain_bundled_dataset_and_fixture(tmp_path: Path) -> 
         [
             sys.executable,
             "-c",
-            "from financial_evidence_agent.cli import evaluate; evaluate()",
+            "from fra.cli import evaluate; evaluate()",
         ],
         cwd=tmp_path,
         env=wheel_environment,
@@ -108,7 +108,7 @@ def test_wheel_and_sdist_contain_bundled_dataset_and_fixture(tmp_path: Path) -> 
             sys.executable,
             "-c",
             (
-                "from financial_evidence_agent.cli import EvalSuite, evaluate; "
+                "from fra.cli import EvalSuite, evaluate; "
                 "evaluate(suite=EvalSuite.P2)"
             ),
         ],

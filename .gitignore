@@ -14,9 +14,13 @@ wheels/
 .agents/
 .codex/
 AGENTS.md
-docs/superpowers/
+/docs/
+/doc/
 .worktrees/
 
 # Virtual environments
 .venv
 .env
+
+# Local dependency cache
+.uv-cache/

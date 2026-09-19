@@ -5,18 +5,18 @@ from hashlib import sha256
 
 import pytest
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     SourceKind,
     SourceTier,
     WebEvidence,
     content_addressed_web_evidence_id,
 )
-from financial_evidence_agent.market_data.models import MarketContext, MarketEvent
-from financial_evidence_agent.reporting.market_guard import (
+from fra.market_data.models import MarketContext, MarketEvent
+from fra.reporting.market_guard import (
     guard_market_context,
     guard_market_event,
 )
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.web_evidence.source_policy import (
     PersistedWebEvidenceValidator,
     SourcePolicy,
 )

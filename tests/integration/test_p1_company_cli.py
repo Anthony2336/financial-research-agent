@@ -9,27 +9,27 @@ from pydantic import SecretStr
 from sqlalchemy import create_engine
 from typer.testing import CliRunner
 
-from financial_evidence_agent import bootstrap as bootstrap_module
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.application import INVALID_TICKER_TEXT
-from financial_evidence_agent.bootstrap import (
+from fra import bootstrap as bootstrap_module
+from fra import cli as cli_module
+from fra.application import INVALID_TICKER_TEXT
+from fra.bootstrap import (
     BootstrapErrorCode,
     ResearchRuntime,
 )
-from financial_evidence_agent.cli import ARBITRARY_URL_REFUSAL_TEXT, app
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import Claim, ClaimKind, Confidence
-from financial_evidence_agent.retrieval.hybrid import HashEmbeddingProvider
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.safety.router import PROMPT_INJECTION_TEXT, REFUSAL_TEXT
-from financial_evidence_agent.skills.models import SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.cli import ARBITRARY_URL_REFUSAL_TEXT, app
+from fra.config import Settings
+from fra.domain import Claim, ClaimKind, Confidence
+from fra.retrieval.hybrid import HashEmbeddingProvider
+from fra.retrieval.ingest import ingest_fixture
+from fra.safety.router import PROMPT_INJECTION_TEXT, REFUSAL_TEXT
+from fra.skills.models import SkillName
+from fra.skills.schemas import (
     InformationSufficiency,
     SkillResearchMemo,
     SkillResearchSection,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
 
 from . import seed_supported_companies
 from .test_p1_workflow import FakePlanner, P1Recorder, _dependencies

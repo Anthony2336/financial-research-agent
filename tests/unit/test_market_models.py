@@ -8,7 +8,7 @@ from hashlib import sha256
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.market_data.models import (
+from fra.market_data.models import (
     MarketBar,
     MarketDataBundle,
     MarketDataError,

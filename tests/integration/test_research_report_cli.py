@@ -10,12 +10,12 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 from typer.testing import CliRunner
 
-from financial_evidence_agent.application import INVALID_TICKER_TEXT
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import Chunk, Company, Filing, ResearchCorpus
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
+from fra.application import INVALID_TICKER_TEXT
+from fra.cli import app
+from fra.retrieval.ingest import ingest_fixture
+from fra.storage.database import create_schema
+from fra.storage.models import Chunk, Company, Filing, ResearchCorpus
+from fra.storage.repositories import ChunkToStore, FilingRepository
 
 runner = CliRunner()
 

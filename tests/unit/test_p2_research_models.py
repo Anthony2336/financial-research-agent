@@ -6,7 +6,7 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     ClaimKind,
     Confidence,
     EvidenceChunk,
@@ -15,7 +15,7 @@ from financial_evidence_agent.domain import (
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.research_packages.models import (
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
@@ -26,8 +26,8 @@ from financial_evidence_agent.research_packages.models import (
     ResearchQualityDecision,
     ResearchQualityResult,
 )
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     InformationSufficiency,
     RecipeProvenance,
@@ -35,7 +35,7 @@ from financial_evidence_agent.skills.schemas import (
     VerificationStatus,
     financial_observation_id,
 )
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 
 def _ref(

@@ -1,28 +1,95 @@
-# Financial Research Agent
+# Financial-Research-Agent
 
-Financial Research Agent is a command-line research assistant for public US companies. It ingests supported SEC filings, retrieves attributable evidence, and renders guarded reports. It is not investment advice and does not recommend trades, predict prices, or manage portfolios.
+Financial-Research-Agent is a command-line research assistant for public US companies. It ingests supported SEC filings, retrieves attributable evidence, and renders guarded reports. It is not investment advice and does not recommend trades, predict prices, or manage portfolios.
 
 See [Engineering Highlights](PROJECT_HIGHLIGHTS.md) for the architecture, technology stack, and major design decisions.
 
-The host CLI uses an in-process FastMCP server/client boundary. A standalone stdio entry point is available for MCP Inspector or external clients:
-
-```bash
-uv run python -m financial_evidence_agent.mcp_server
-```
-
 ## Supported operator modes
 
-| Mode | CLI input | Required runtime |
-|---|---|---|
-| `thesis` | `--thesis` | Ingested corpus, Redis, local model assets, and OpenAI; or explicit `OFFLINE_DEMO=true` |
-| `auto` | `--question` | OpenAI model configuration |
-| `company-profile` | `--question` | Ingested corpus, local model assets, and OpenAI |
-| `earnings-review` | `--question` | Ingested corpus, local model assets, and OpenAI |
-| `industry-research` | `--question` | Ingested corpus, local model assets, and OpenAI |
-| `quality-screen` | `--question` | Ingested corpus, local model assets, and OpenAI |
-| `market-snapshot` | `--question` | Alpaca Basic credentials; Tavily only for requested event context |
+Research reports separate cited facts, interpretations, counterevidence and unanswered questions. Filing-based modes use an ingested company corpus; market snapshots use Alpaca data. All modes resolve the ticker against local company metadata, populated during filing ingestion.
 
-Only `10-K`, `10-Q`, and `8-K` filings are supported. Market output is labelled Alpaca Basic `IEX-only`, never consolidated. Users may supply at most three peers; the application does not discover or rank securities. For the architecture, source policy, provenance, memory, budgets, and guard behavior, see the engineering highlights above.
+Before running the examples, complete [Local setup](#local-setup), configure
+`OPENAI_API_KEY`, `FAST_MODEL` and `ANALYST_MODEL` as described in
+[Model-backed research](#model-backed-research), and [ingest the company's filings](#live-sec-ingestion).
+Market snapshots use Alpaca credentials instead. To try the project without a
+model API key, use the explicit thesis command in [Offline demo](#offline-demo).
+
+| Mode | Purpose | Input |
+|---|---|---|
+| `thesis` | Test a specific business hypothesis against disclosures | `--thesis` |
+| `auto` | Route a research question to the appropriate workflow | `--question` |
+| `company-profile` | Review the business, management, governance and financial evidence | `--question` |
+| `earnings-review` | Examine reported changes, guidance and risks | `--question` |
+| `industry-research` | Study an industry's structure and compare explicitly selected peers | `--question` |
+| `quality-screen` | Assess whether the available evidence supports further research | `--question` |
+| `market-snapshot` | Retrieve an IEX snapshot, recent daily bars and optional event context | `--question` |
+
+### Thesis analysis
+
+Use this mode to test a claim such as whether demand supports revenue growth. The report presents supporting disclosures, counterevidence and evidence gaps, with citations for retained facts.
+
+```bash
+uv run research NVDA --mode thesis \
+  --thesis "Does data center demand support revenue growth despite deployment risks?"
+```
+
+### Automatic routing
+
+Use `auto` when you have a question but do not want to choose a workflow. Rules resolve clear requests, and a fast model classifies ambiguous ones; the selected workflow still needs its own data and credentials. This earnings example requires configured model access and reviews the latest eligible disclosure already ingested into the database.
+
+```bash
+uv run research NVDA --mode auto \
+  --question "What changed in the latest earnings disclosure?"
+```
+
+### Company research
+
+Build a company overview covering its business model, competitive position, management, governance and capital allocation. The workflow also checks financial claims against available sources and identifies missing evidence.
+
+```bash
+uv run research NVDA --mode company-profile \
+  --question "Explain the business model, governance, financial position and key risks."
+```
+
+### Earnings review
+
+Review changes in reported performance, management guidance and disclosed risks. The report distinguishes supported figures from interpretations and flags values that cannot be verified or compared.
+
+```bash
+uv run research NVDA --mode earnings-review \
+  --question "What changed in revenue, margins, guidance and risks in the latest filing?"
+```
+
+### Industry and peer research
+
+Examine the value chain, supply and demand, competition, regulation and industry risks around a company. Add `--peer-ticker` and `--peer-scope` for an explicit comparison; incompatible periods, units or definitions remain marked as non-comparable.
+
+```bash
+uv run research NVDA --mode industry-research \
+  --question "Describe the semiconductor value chain, competition and demand drivers."
+```
+
+See [Peer comparison](#peer-comparison) for a multi-company example.
+
+### Research quality screening
+
+Assess source coverage, freshness, financial comparability and unresolved gaps before spending more time on a company. The result is `worth_further_research`, `insufficient_information` or `out_of_scope`; it assesses evidence quality, not investment attractiveness.
+
+```bash
+uv run research NVDA --mode quality-screen \
+  --question "Is the available evidence sufficient for further company research?"
+```
+
+### Market snapshots
+
+Retrieve price, daily range, previous close and recent daily bars with provider and timestamp metadata. Add `--with-context` to search for authoritative events near the observation time; nearby events are not treated as proven causes of a price move.
+
+```bash
+uv run research NVDA --mode market-snapshot \
+  --question "Show the current IEX snapshot and recent daily bars."
+```
+
+Market data requires Alpaca Basic credentials and covers IEX only, not the consolidated US market. Event context also requires Tavily; see [Market data](#market-data) for setup.
 
 ## Local setup
 
@@ -40,7 +107,7 @@ uv sync --frozen --all-groups
 cp .env.example .env
 ```
 
-Start dependencies and migrate the database:
+PostgreSQL 16 with pgvector stores filings, embeddings, reports and research memory. Redis provides optional caching and session continuity. Start the services and apply database migrations:
 
 ```bash
 docker compose up -d --wait postgres redis
@@ -51,11 +118,13 @@ The application rejects non-empty unversioned schemas with `DATABASE_UNVERSIONED
 
 ## Offline demo
 
+After database setup, run the bundled example without model or market-provider credentials. It uses a fixed filing fixture and deterministic analysis to demonstrate the report flow, rather than generating a live research answer.
+
 Ingest the bundled fixture:
 
 ```bash
 uv run ingest \
-  --fixture src/financial_evidence_agent/resources/nvda_10q.html \
+  --fixture src/fra/resources/nvda_10q.html \
   --ticker NVDA \
   --form 10-Q
 ```
@@ -72,12 +141,15 @@ Safety still applies in demo mode. For example, `uv run research NVDA --thesis "
 
 ## Model-backed research
 
-Configure the model path:
+Set the following values in `.env` or export them in your shell. `OPENAI_API_KEY`
+must be a valid API key; `FAST_MODEL` and `ANALYST_MODEL` must be model IDs available
+to that key. Replace the `...` values below before running the commands.
 
 ```bash
 export OPENAI_API_KEY=...
 export FAST_MODEL=...
 export ANALYST_MODEL=...
+# Optional: shared retrieval cache and session continuity
 export REDIS_URL=redis://localhost:6379/0
 export EMBEDDING_CACHE_DIR=/absolute/path/to/bge-cache
 export TOKENIZER_CACHE_DIR=/absolute/path/to/tokenizer-cache
@@ -85,40 +157,25 @@ export CONTEXT_COMPRESSOR_CACHE_DIR=/absolute/path/to/llmlingua-cache
 export RERANKER_CACHE_DIR=/absolute/path/to/flashrank-cache
 ```
 
-From an explicitly network-enabled operator environment, prefetch every approved model asset
-before production research:
+Download the local model assets before running model-backed research:
 
 ```bash
 uv run prefetch-model-assets
 ```
 
-This explicit command downloads BGE-M3, the exact FAST/ANALYST tokenizer encodings, the
-LLMLingua snapshot, and the locked FlashRank 0.2.10 model. It also writes the FlashRank
-integrity manifest required at runtime. Normal CLI startup and default/offline CI never invoke
-the provisioner: tokenizer and LLMLingua load with local-only flags, and FlashRank validates
-its local manifest before its constructor can reach the package download boundary.
+The command downloads BGE-M3, the configured models' tokenizers, LLMLingua and FlashRank assets. Research loads these assets locally; missing or corrupt files produce a configuration error.
 
-Examples:
+For filing-based research, `--forms 10-K,10-Q,8-K` selects eligible filing types and `--as-of-date YYYY-MM-DD` sets the latest filing date. Ingest the relevant company filings before running one of the modes above.
+
+Use the same `--session-id` for follow-up questions. With Redis enabled, the session keeps up to five turns for 24 hours; prior answers help interpret the question, while factual claims still require current evidence.
 
 ```bash
-uv run research NVDA \
-  --mode company-profile \
-  --question "Summarize the business, governance, risks, and evidence gaps."
+uv run research NVDA --mode auto --session-id nvda-review \
+  --question "What drove data center revenue growth?"
 
-uv run research NVDA \
-  --mode earnings-review \
-  --question "What changed in the latest earnings disclosure?"
-
-uv run research NVDA \
-  --mode industry-research \
-  --question "Describe industry structure, competition, and regulation."
-
-uv run research NVDA \
-  --mode quality-screen \
-  --question "Is this guarded evidence sufficient for further research?"
+uv run research NVDA --mode auto --session-id nvda-review \
+  --question "What risks could affect that growth?"
 ```
-
-Use `--session-id` only for bounded research continuity. Session and research memory are planning hints, never factual evidence; the isolated two-turn acceptance remains grounded and cache-backed in the executed matrix.
 
 ## Live SEC ingestion
 
@@ -133,7 +190,7 @@ uv run ingest \
   --as-of-date 2026-08-31
 ```
 
-Live ingestion also stores exact SEC Company Facts in a separate table. They are not silently promoted into filing/web evidence or automatically treated as live P1 reconciliation inputs. Protected SEC connectivity remains unverified unless the live workflow produces a passing run record.
+Supported filing types are `10-K`, `10-Q` and `8-K`. Ingestion also stores SEC Company Facts with their original periods, units and source metadata in a separate table; those records are not automatically used as report evidence.
 
 ## Allowlisted web fallback
 
@@ -201,7 +258,7 @@ Run the packaged fixture and offline gates:
 
 ```bash
 docker compose --profile cli run --rm cli ingest \
-  --fixture /app/src/financial_evidence_agent/resources/nvda_10q.html \
+  --fixture /app/src/fra/resources/nvda_10q.html \
   --ticker NVDA --form 10-Q
 
 OFFLINE_DEMO=true docker compose --profile cli run --rm cli research NVDA \
@@ -229,7 +286,7 @@ docker compose -p financial-evidence-agent stop postgres redis
 docker compose -p financial-evidence-agent-legacy-recovery up -d postgres redis
 docker compose -p financial-evidence-agent-legacy-recovery --profile cli build cli
 docker compose -p financial-evidence-agent-legacy-recovery --profile cli run --rm cli db-upgrade
-docker compose -p financial-evidence-agent-legacy-recovery --profile cli run --rm cli ingest --fixture /app/src/financial_evidence_agent/resources/nvda_10q.html --ticker NVDA --form 10-Q
+docker compose -p financial-evidence-agent-legacy-recovery --profile cli run --rm cli ingest --fixture /app/src/fra/resources/nvda_10q.html --ticker NVDA --form 10-Q
 OFFLINE_DEMO=true docker compose -p financial-evidence-agent-legacy-recovery --profile cli run --rm cli research NVDA --thesis "Do cited disclosures support sustained data center demand?"
 docker compose -p financial-evidence-agent-legacy-recovery --profile cli run --rm cli eval --suite p2
 docker compose -p financial-evidence-agent-legacy-recovery down
@@ -291,7 +348,7 @@ uv run eval --suite p2 \
   --langfuse-experiment p2-local
 ```
 
-These commands are external side effects. Ordinary offline evaluation does not contact Langfuse.
+Dataset synchronization and experiments send data to the configured Langfuse instance. Evaluation without these options runs locally.
 
 ## Evaluation
 
@@ -334,7 +391,7 @@ Default CI runs locked offline checks, PostgreSQL acceptance, both eval commands
 
 ### Protected live tests
 
-Run these only inside the authorized protected workflow:
+Live tests require provider credentials and network access:
 
 ```bash
 uv run pytest -m live_provider tests/integration/test_live_sec_opt_in.py -k live_p1_application_smoke -v
@@ -344,7 +401,7 @@ uv run pytest -m live_provider tests/integration/test_live_sec_opt_in.py -k real
 uv run pytest -m live_sec tests/integration/test_live_sec_opt_in.py -k real_nvda_sec_ingest_smoke -v
 ```
 
-`.github/workflows/live-smoke.yml` is manual and secret-scoped. No local passing run ID is recorded for these checks as of 2026-09-04, so provider connectivity remains unverified.
+`.github/workflows/live-smoke.yml` runs provider checks manually with repository secrets. These checks are separate from the default offline suite.
 
 ## Troubleshooting
 
@@ -358,9 +415,9 @@ Prefetch BGE-M3 and point `EMBEDDING_CACHE_DIR` to the same directory. Runtime s
 
 ### `RERANKER_MODEL_UNAVAILABLE`
 
-Run `uv run prefetch-model-assets` in the authorized network-enabled environment and keep
-`RERANKER_CACHE_DIR` pointed at that cache. Production validates the manifest and never
-substitutes identity reranking or downloads from the constructor.
+Run `uv run prefetch-model-assets` with network access and point
+`RERANKER_CACHE_DIR` at the resulting cache. Research validates the model manifest
+before loading the reranker.
 
 ### `encoding_unavailable` or `model_unavailable`
 
@@ -374,7 +431,8 @@ Install the `web-search` extra, or unset `TAVILY_API_KEY` for the labelled local
 
 ### `THESIS_CONFIGURATION_MISSING` or `P1_MODEL_CONFIGURATION_MISSING`
 
-Set `OPENAI_API_KEY`, `FAST_MODEL`, and `ANALYST_MODEL`; thesis production also requires Redis. Use `OFFLINE_DEMO=true` only intentionally.
+Set `OPENAI_API_KEY`, `FAST_MODEL`, and `ANALYST_MODEL`. Redis is optional in every
+research mode; leave `REDIS_URL` empty to disable it. Use `OFFLINE_DEMO=true` only intentionally.
 
 ### `UNSUPPORTED_TICKER`
 
@@ -403,3 +461,13 @@ Identify the exact project using ports 5432/6379. Do not stop unknown projects o
 ### P2 evaluation is red
 
 Inspect the failing case and `cross_ticker_leakage_count`, source-policy violations, and budget violations. A red case invalidates acceptance until corrected and rerun.
+
+## MCP integration
+
+The CLI uses an in-process FastMCP server/client boundary. For MCP Inspector or another client, start the standalone stdio server:
+
+```bash
+uv run python -m fra.mcp_server
+```
+
+Tools expose company lookup, filing search, source spans, allowlisted web evidence and market data. Configure the same database, local model assets and provider credentials used by the CLI.

@@ -34,22 +34,22 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.market_data.models import (
+from fra.config import Settings
+from fra.market_data.models import (
     MarketBar,
     MarketDataBundle,
     MarketSnapshot,
     market_bar_observation_id,
     market_snapshot_observation_id,
 )
-from financial_evidence_agent.retrieval.xbrl import (
+from fra.retrieval.xbrl import (
     SecCompanyFactsDocument,
     company_facts_url,
     normalize_company_facts,
 )
-from financial_evidence_agent.storage.fact_repositories import CompanyFactRepository
-from financial_evidence_agent.storage.market_repositories import MarketDataRepository
-from financial_evidence_agent.storage.models import (
+from fra.storage.fact_repositories import CompanyFactRepository
+from fra.storage.market_repositories import MarketDataRepository
+from fra.storage.models import (
     Chunk,
     ClaimRecord,
     Company,
@@ -61,7 +61,7 @@ from financial_evidence_agent.storage.models import (
     ResearchRun,
     SkillRun,
 )
-from financial_evidence_agent.storage.repositories import FilingRepository
+from fra.storage.repositories import FilingRepository
 
 
 @pytest.fixture
@@ -885,11 +885,11 @@ def test_corpus_membership_cutoff_0011_backfills_the_latest_member_date(
     assert str(cutoff) == "2025-05-28"
 
 
-def test_company_facts_0010_is_additive_and_downgrade_drops_only_task9_table(
+def test_company_facts_0010_is_additive_and_downgrade_drops_only_facts_table(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Task 9 must not backfill or disturb 0008/0009 data and metadata."""
+    """The migration must preserve existing corpus and memory data."""
     from alembic import command
 
     database_url = f"sqlite+pysqlite:///{tmp_path / 'company-facts.sqlite3'}"
@@ -1512,7 +1512,7 @@ def test_alembic_migration_keeps_existing_application_logger_enabled(
     """Alembic logging must not suppress cache error logs after one migration invocation."""
     from alembic import command
 
-    logger = logging.getLogger("financial_evidence_agent.storage.cache")
+    logger = logging.getLogger("fra.storage.cache")
     previous_disabled = logger.disabled
     logger.disabled = False
     try:

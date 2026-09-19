@@ -13,15 +13,11 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.application import (
-    INVALID_TICKER_TEXT,
-    ResearchApplication,
-    ResearchCommand,
-    ResearchMode,
-)
-from financial_evidence_agent.bootstrap import build_research_application
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import (
+from fra.application import INVALID_TICKER_TEXT, ResearchApplication
+from fra.bootstrap import build_research_application
+from fra.config import Settings
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -35,48 +31,48 @@ from financial_evidence_agent.domain import (
     SourceTier,
     WebEvidence,
 )
-from financial_evidence_agent.evals.p2_runner import (
+from fra.evals.p2_runner import (
     DeterministicP2ApplicationFactory,
     load_p2_eval_cases,
 )
-from financial_evidence_agent.evals.runner import (
+from fra.evals.runner import (
     _offline_p1_dependencies,
     load_p1_eval_cases,
 )
-from financial_evidence_agent.graph.models import ResearchResult
-from financial_evidence_agent.graph.workflow import run_research
-from financial_evidence_agent.market_data.models import MarketContext, MarketEvent
-from financial_evidence_agent.memory.research import ResearchMemoryService
-from financial_evidence_agent.memory.session import SessionMemoryStore
-from financial_evidence_agent.observability import ObservationHandle
-from financial_evidence_agent.reporting import (
+from fra.graph.models import ResearchResult
+from fra.graph.workflow import run_research
+from fra.market_data.models import MarketContext, MarketEvent
+from fra.memory.research import ResearchMemoryService
+from fra.memory.session import SessionMemoryStore
+from fra.observability import ObservationHandle
+from fra.reporting import (
     guard_memo,
     render_markdown,
     render_market_markdown,
     render_skill_markdown,
 )
-from financial_evidence_agent.reporting.guard import guard_skill_memo
-from financial_evidence_agent.reporting.market_guard import attach_market_context
-from financial_evidence_agent.reporting.p2_guard import guard_p2_report
-from financial_evidence_agent.reporting.p2_render import render_p2_markdown
-from financial_evidence_agent.research_packages.models import ResearchQualityResult
-from financial_evidence_agent.retrieval.collector import EvidenceBundle
-from financial_evidence_agent.retrieval.coverage import (
+from fra.reporting.guard import guard_skill_memo
+from fra.reporting.market_guard import attach_market_context
+from fra.reporting.p2_guard import guard_p2_report
+from fra.reporting.p2_render import render_p2_markdown
+from fra.research_packages.models import ResearchQualityResult
+from fra.retrieval.collector import EvidenceBundle
+from fra.retrieval.coverage import (
     CoverageReport,
     EvidenceAssignment,
     EvidenceSide,
 )
-from financial_evidence_agent.retrieval.indexing import HashEmbeddingProvider
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.skills.recipes import RECIPES
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.memory_repositories import ResearchMemoryRepository
-from financial_evidence_agent.storage.models import ResearchMemoryRecord, SkillRun
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
-from financial_evidence_agent.storage.run_repositories import ResearchRunRepository, RunStart
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.retrieval.indexing import HashEmbeddingProvider
+from fra.retrieval.ingest import ingest_fixture
+from fra.skills.recipes import RECIPES
+from fra.storage.cache import InMemoryTtlJsonCache
+from fra.storage.database import create_schema
+from fra.storage.memory_repositories import ResearchMemoryRepository
+from fra.storage.models import ResearchMemoryRecord, SkillRun
+from fra.storage.repositories import ChunkToStore, FilingRepository
+from fra.storage.run_repositories import ResearchRunRepository, RunStart
+from fra.storage.web_repositories import WebEvidenceRepository
+from fra.web_evidence.source_policy import (
     PersistedWebEvidenceValidator,
     SourcePolicy,
 )
@@ -87,7 +83,7 @@ class _Observation:
         self,
         trace_id: str | None = None,
         *,
-        name: str = "financial-evidence-agent.run",
+        name: str = "financial-research-agent.run",
         kind: str = "agent",
         input: object | None = None,
         metadata: Mapping[str, object] | None = None,
@@ -603,7 +599,7 @@ def test_p2_private_source_url_is_absent_from_run_finish_and_real_sqlite(tmp_pat
     private_url = "https://investor.nvidia.com/results?password=private-password-value"
     case = next(
         case
-        for case in load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))
+        for case in load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))
         if case.id == "industry"
     )
     result = DeterministicP2ApplicationFactory().for_case(case).run(
@@ -692,7 +688,7 @@ def test_completed_p1_application_output_is_sanitized_in_real_sqlite(
     private = "password=private-password-value"
     private_url = "https://investor.nvidia.com/results?password=url-private-value"
     case = load_p1_eval_cases(
-        Path("src/financial_evidence_agent/evals/dataset.jsonl")
+        Path("src/fra/evals/dataset.jsonl")
     )[0]
     dependencies, _ = _offline_p1_dependencies(case)
     result = run_research(case.ticker, case.request, dependencies).bind_run_id(
@@ -817,7 +813,7 @@ def test_p2_quality_and_market_results_survive_real_sqlite_privacy_boundary(
 ) -> None:
     """Representative P2-family application results use RunFinish against real SQLite."""
     private = "password=private-password-value"
-    dataset = Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+    dataset = Path("src/fra/evals/p2_dataset.jsonl")
     case = next(case for case in load_p2_eval_cases(dataset) if case.id == case_id)
     application = DeterministicP2ApplicationFactory().for_case(case)
     result = application.run(

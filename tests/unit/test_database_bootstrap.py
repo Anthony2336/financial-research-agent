@@ -4,9 +4,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from financial_evidence_agent import bootstrap
-from financial_evidence_agent.bootstrap import BootstrapConfigurationError, BootstrapErrorCode
-from financial_evidence_agent.storage.database import DatabaseMigrationRequiredError
+from fra import bootstrap
+from fra.bootstrap import BootstrapConfigurationError, BootstrapErrorCode
+from fra.storage.database import DatabaseMigrationRequiredError
 
 
 def test_postgres_bootstrap_requires_alembic_head_before_runtime_construction(

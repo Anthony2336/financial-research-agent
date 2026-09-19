@@ -7,12 +7,12 @@ from dataclasses import dataclass
 from threading import Barrier, Lock
 from types import SimpleNamespace
 
-import financial_evidence_agent.bootstrap as bootstrap_module
-from financial_evidence_agent.bootstrap import build_production_retriever
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import SourceRef, SourceRefKind
-from financial_evidence_agent.memory.research import ResearchMemoryKind
-from financial_evidence_agent.storage.cache import NoopJsonCache
+import fra.bootstrap as bootstrap_module
+from fra.bootstrap import build_production_retriever
+from fra.config import Settings
+from fra.domain import SourceRef, SourceRefKind
+from fra.memory.research import ResearchMemoryKind
+from fra.storage.cache import NoopJsonCache
 
 
 def test_production_retriever_uses_configured_lazy_flashrank_reranker() -> None:

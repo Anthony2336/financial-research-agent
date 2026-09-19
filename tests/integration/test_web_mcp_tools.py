@@ -11,20 +11,20 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from financial_evidence_agent.domain import SourceKind, SourceTier, WebEvidence
-from financial_evidence_agent.mcp_server.server import create_server
-from financial_evidence_agent.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import WebEvidenceRecord
-from financial_evidence_agent.storage.repositories import FilingRepository
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
-from financial_evidence_agent.web_evidence.gateway import AllowlistedWebGateway
-from financial_evidence_agent.web_evidence.providers import (
+from fra.domain import SourceKind, SourceTier, WebEvidence
+from fra.mcp_server.server import create_server
+from fra.retrieval.hybrid import HashEmbeddingProvider, HybridRetriever
+from fra.storage.database import create_schema
+from fra.storage.models import WebEvidenceRecord
+from fra.storage.repositories import FilingRepository
+from fra.storage.web_repositories import WebEvidenceRepository
+from fra.web_evidence.gateway import AllowlistedWebGateway
+from fra.web_evidence.providers import (
     HttpxRedirectResolver,
     RawSearchHit,
     SearchProviderError,
 )
-from financial_evidence_agent.web_evidence.source_policy import SourcePolicy, SourcePolicyError
+from fra.web_evidence.source_policy import SourcePolicy, SourcePolicyError
 
 
 class FakeProvider:

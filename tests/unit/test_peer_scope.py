@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from financial_evidence_agent.research_packages.orchestrator import (
+from fra.research_packages.orchestrator import (
     PeerScopeError,
     validate_peer_scope,
 )

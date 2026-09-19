@@ -3,18 +3,18 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from financial_evidence_agent.domain import ResearchQuestion
-from financial_evidence_agent.graph.models import (
+from fra.domain import ResearchQuestion
+from fra.graph.models import (
     SkillAnalysisInput,
     SkillAnalystModel,
     SkillPlannerModel,
     SkillPlanningInput,
 )
-from financial_evidence_agent.retrieval.collector import EvidenceBundle
-from financial_evidence_agent.retrieval.coverage import CoverageReport
-from financial_evidence_agent.skills.models import SkillName
-from financial_evidence_agent.skills.recipes import P1_RECIPES
-from financial_evidence_agent.skills.schemas import (
+from fra.retrieval.collector import EvidenceBundle
+from fra.retrieval.coverage import CoverageReport
+from fra.skills.models import SkillName
+from fra.skills.recipes import P1_RECIPES
+from fra.skills.schemas import (
     InformationSufficiency,
     SkillResearchMemo,
     SkillResearchSection,
@@ -140,7 +140,7 @@ def test_planning_input_keeps_the_selected_recipe_snapshot_frozen() -> None:
 
 async def test_analyst_request_type_cannot_expose_planner_memory_hints() -> None:
     """An alternate analyst must receive no field capable of carrying session hints."""
-    from financial_evidence_agent.context import MemoryHint
+    from fra.context import MemoryHint
 
     planner = FakeSkillPlanner()
     analyst = FakeSkillAnalyst()

@@ -15,32 +15,32 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from financial_evidence_agent.domain import ResearchQuestion
-from financial_evidence_agent.graph.models import FastMCPToolClient
-from financial_evidence_agent.mcp_server.client_adapters import MCPFilingSearch
-from financial_evidence_agent.mcp_server.server import create_server
-from financial_evidence_agent.mcp_server.tools import (
+from fra.domain import ResearchQuestion
+from fra.graph.models import FastMCPToolClient
+from fra.mcp_server.client_adapters import MCPFilingSearch
+from fra.mcp_server.server import create_server
+from fra.mcp_server.tools import (
     FetchRecentFilingsResponse,
     FilingOutput,
 )
-from financial_evidence_agent.retrieval.collector import (
+from fra.retrieval.collector import (
     THESIS_COLLECTION_POLICY,
     CollectionErrorCode,
     EvidenceCollectionError,
     EvidenceCollector,
 )
-from financial_evidence_agent.retrieval.hybrid import (
+from fra.retrieval.hybrid import (
     HashEmbeddingProvider,
     HybridRetriever,
 )
-from financial_evidence_agent.retrieval.indexing import EmbeddingIndexer
-from financial_evidence_agent.retrieval.ingest import ingest_fixture
-from financial_evidence_agent.retrieval.rerank import (
+from fra.retrieval.indexing import EmbeddingIndexer
+from fra.retrieval.ingest import ingest_fixture
+from fra.retrieval.rerank import (
     LazyFlashRankReranker,
     RerankerModelUnavailableError,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import (
+from fra.storage.database import create_schema
+from fra.storage.models import (
     Base,
     Chunk,
     Company,
@@ -48,7 +48,7 @@ from financial_evidence_agent.storage.models import (
     Filing,
     ResearchCorpus,
 )
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
+from fra.storage.repositories import ChunkToStore, FilingRepository
 
 
 def _data(result):
@@ -401,7 +401,7 @@ async def test_mcp_stdio_entrypoint_lists_tools_and_fetches_fixture_filing(
 
     transport = StdioTransport(
         command=sys.executable,
-        args=["-m", "financial_evidence_agent.mcp_server"],
+        args=["-m", "fra.mcp_server"],
         env={**os.environ, "DATABASE_URL": database_url},
         cwd=str(Path.cwd()),
         keep_alive=False,
@@ -481,7 +481,7 @@ async def test_mcp_explicitly_rejects_persisted_def_14a_proxy(
     repository: FilingRepository,
     engine,
 ) -> None:
-    """Phase 0 defers proxy evidence, so DEF 14A must remain outside every filing read."""
+    """Unsupported proxy filings must remain outside every filing read."""
     assert (
         _store_filing(
             repository,

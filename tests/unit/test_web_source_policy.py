@@ -6,13 +6,13 @@ from hashlib import sha256
 import pytest
 from pydantic import HttpUrl
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     SourceKind,
     SourceTier,
     WebEvidence,
     content_addressed_web_evidence_id,
 )
-from financial_evidence_agent.web_evidence.source_policy import (
+from fra.web_evidence.source_policy import (
     DEFAULT_INDUSTRY_AUTHORITY_DOMAINS,
     DEFAULT_STANDARD_AUTHORITY_DOMAINS,
     PersistedWebEvidenceValidator,

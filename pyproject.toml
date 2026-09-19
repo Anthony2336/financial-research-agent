@@ -1,5 +1,5 @@
 [project]
-name = "financial-evidence-agent"
+name = "financial-research-agent"
 version = "0.1.0"
 description = "Evidence-grounded financial research audit CLI"
 readme = "README.md"
@@ -10,11 +10,8 @@ dependencies = [
     "fastmcp>=2.0",
     "flashrank==0.2.10",
     "httpx>=0.28",
-    "langchain>=0.3",
-    "langchain-mcp-adapters>=0.1",
+    "langchain-core>=0.3",
     "langchain-openai>=0.3",
-    "langchain-postgres>=0.0.13",
-    "langchain-text-splitters>=0.3",
     "langfuse>=4.0",
     "langgraph>=0.3",
     "pgvector>=0.3",
@@ -22,13 +19,11 @@ dependencies = [
     "pydantic>=2.10",
     "pydantic-settings>=2.7",
     "redis>=5.2",
-    "sec-edgar-downloader>=5.0",
     "sentence-transformers>=3.3",
     "sqlalchemy>=2.0",
     "tenacity>=9.0",
     "tiktoken>=0.8",
     "typer>=0.15",
-    "unstructured>=0.16",
     "rich>=13.0",
     "mcp[cli]>=1.27,<2",
     "rank-bm25>=0.2.2",
@@ -36,18 +31,18 @@ dependencies = [
 ]
 
 [project.scripts]
-ingest = "financial_evidence_agent.cli:ingest_main"
-research = "financial_evidence_agent.cli:research_main"
-eval = "financial_evidence_agent.cli:eval_main"
-prefetch-model-assets = "financial_evidence_agent.prefetch_assets:main"
+ingest = "fra.cli:ingest_main"
+research = "fra.cli:research_main"
+eval = "fra.cli:eval_main"
+prefetch-model-assets = "fra.prefetch_assets:main"
 
 [build-system]
 requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
-"financial_evidence_agent.evals" = ["dataset.jsonl", "p2_dataset.jsonl"]
-"financial_evidence_agent.resources" = ["nvda_10q.html"]
+"fra.evals" = ["dataset.jsonl", "p2_dataset.jsonl"]
+"fra.resources" = ["nvda_10q.html"]
 
 [dependency-groups]
 dev = [

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     ClaimKind,
     Confidence,
     EvidenceChunk,
@@ -16,7 +16,7 @@ from financial_evidence_agent.domain import (
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.research_packages.models import (
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
@@ -24,12 +24,12 @@ from financial_evidence_agent.research_packages.models import (
     PackageClaim,
     PeerResearchRequest,
 )
-from financial_evidence_agent.research_packages.orchestrator import (
+from fra.research_packages.orchestrator import (
     PeerResearchOrchestrator,
     PeerResearchResult,
 )
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     InformationSufficiency,
     RecipeProvenance,

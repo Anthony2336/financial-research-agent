@@ -11,12 +11,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.evals.p2_runner import (
+from fra.config import Settings
+from fra.evals.p2_runner import (
     load_p2_eval_cases,
     run_application_experiment,
 )
-from financial_evidence_agent.observability import (
+from fra.observability import (
     build_langfuse_operation_client,
     build_trace_sink,
     sync_langfuse_dataset,
@@ -91,7 +91,7 @@ def _live_settings() -> Settings:
 
 
 def _live_cases():
-    cases = load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))
+    cases = load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))
     selected = [case for case in cases if case.id in _CASE_IDS]
     assert [case.id for case in selected] == list(_CASE_IDS)
     return selected
@@ -119,12 +119,12 @@ def test_live_langfuse_trace_sink_flushes_one_root_run() -> None:
     sink = build_trace_sink(settings)
 
     with sink.run(
-        run_id="task20-live-langfuse-smoke",
+        run_id="live-langfuse-smoke",
         input={"ticker": "NVDA", "mode": "quality-screen"},
-        metadata={"suite": "task20", "source": "live-smoke"},
+        metadata={"suite": "provider-connectivity", "source": "live-smoke"},
     ) as run:
         with run.observation(
-            name="task20.live-smoke",
+            name="langfuse.live-smoke",
             kind="chain",
             input={"step": "trace"},
             metadata={"mode": "root-flush"},

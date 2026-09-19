@@ -11,11 +11,12 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.application import ResearchApplication, ResearchCommand, ResearchMode
-from financial_evidence_agent.bootstrap import build_research_application
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.context import ContextBuilder, MemoryHint
-from financial_evidence_agent.domain import (
+from fra.application import ResearchApplication
+from fra.bootstrap import build_research_application
+from fra.config import Settings
+from fra.context import ContextBuilder, MemoryHint
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -27,17 +28,17 @@ from financial_evidence_agent.domain import (
     SourceRef,
     SourceRefKind,
 )
-from financial_evidence_agent.graph.models import Dependencies, ResearchResult
-from financial_evidence_agent.graph.workflow import run_research
-from financial_evidence_agent.memory.models import ConversationTurn
-from financial_evidence_agent.memory.research import ResearchMemory, ResearchMemoryKind
-from financial_evidence_agent.memory.session import SessionMemoryStore
-from financial_evidence_agent.reporting import guard_memo
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import ResearchMemoryRecord
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
-from financial_evidence_agent.storage.run_repositories import (
+from fra.graph.models import Dependencies, ResearchResult
+from fra.graph.workflow import run_research
+from fra.memory.models import ConversationTurn
+from fra.memory.research import ResearchMemory, ResearchMemoryKind
+from fra.memory.session import SessionMemoryStore
+from fra.reporting import guard_memo
+from fra.storage.cache import InMemoryTtlJsonCache
+from fra.storage.database import create_schema
+from fra.storage.models import ResearchMemoryRecord
+from fra.storage.repositories import ChunkToStore, FilingRepository
+from fra.storage.run_repositories import (
     PersistedClaim,
     RunFinish,
 )

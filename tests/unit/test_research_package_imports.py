@@ -11,10 +11,10 @@ import pytest
 @pytest.mark.parametrize(
     "statement",
     [
-        "import financial_evidence_agent.application",
-        "import financial_evidence_agent.cli",
+        "import fra.application",
+        "import fra.cli",
         (
-            "from financial_evidence_agent.research_packages import "
+            "from fra.research_packages import "
             "PeerResearchOrchestrator, QualityResearchRuntime"
         ),
     ],

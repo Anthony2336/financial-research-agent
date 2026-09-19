@@ -12,10 +12,10 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.application import ResearchCommand
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.evals.p2_runner import (
+from fra import cli as cli_module
+from fra.cli import app
+from fra.contracts import ResearchCommand
+from fra.evals.p2_runner import (
     DeterministicP2ApplicationFactory,
     evaluate_p2_case,
     load_p2_eval_cases,
@@ -26,7 +26,7 @@ runner = CliRunner()
 
 
 def test_run_p2_eval_is_deterministic_and_exercises_required_case_classes() -> None:
-    dataset = Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+    dataset = Path("src/fra/evals/p2_dataset.jsonl")
 
     summary = run_p2_eval(dataset)
     repeated = run_p2_eval(dataset)
@@ -135,7 +135,7 @@ def test_eval_cli_rejects_invalid_suite_dataset_combinations_before_settings(
 
 def test_eval_cli_p2_returns_one_after_printing_a_red_summary(tmp_path: Path) -> None:
     red_dataset = tmp_path / "red-p2.jsonl"
-    source = Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+    source = Path("src/fra/evals/p2_dataset.jsonl")
     records = [json.loads(line) for line in source.read_text(encoding="utf-8").splitlines()]
     records[0]["expected_status"] = "failed"
     red_dataset.write_text(
@@ -154,7 +154,7 @@ def test_peer_eval_cases_record_real_p1_recipe_traces() -> None:
     cases = {
         case.id: case
         for case in load_p2_eval_cases(
-            Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+            Path("src/fra/evals/p2_dataset.jsonl")
         )
     }
     factory = DeterministicP2ApplicationFactory()
@@ -175,7 +175,7 @@ def test_peer_eval_cases_record_real_p1_recipe_traces() -> None:
 def test_cross_ticker_attack_uses_real_quality_runtime_observations() -> None:
     case = next(
         case
-        for case in load_p2_eval_cases(Path("src/financial_evidence_agent/evals/p2_dataset.jsonl"))
+        for case in load_p2_eval_cases(Path("src/fra/evals/p2_dataset.jsonl"))
         if case.id == "cross-ticker-attack"
     )
     factory = DeterministicP2ApplicationFactory()
@@ -210,7 +210,7 @@ def test_red_p2_eval_skips_langfuse_operations_after_printing_json(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     red_dataset = tmp_path / "red-p2.jsonl"
-    source = Path("src/financial_evidence_agent/evals/p2_dataset.jsonl")
+    source = Path("src/fra/evals/p2_dataset.jsonl")
     records = [json.loads(line) for line in source.read_text(encoding="utf-8").splitlines()]
     records[0]["expected_status"] = "failed"
     red_dataset.write_text(
@@ -224,7 +224,7 @@ def test_red_p2_eval_skips_langfuse_operations_after_printing_json(
     ):
         monkeypatch.setenv(name, value)
     monkeypatch.setattr(
-        "financial_evidence_agent.observability.build_langfuse_operation_client",
+        "fra.observability.build_langfuse_operation_client",
         lambda settings: pytest.fail("red P2 eval must not construct a Langfuse client"),
     )
 

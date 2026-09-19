@@ -11,17 +11,17 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.domain import EvidenceChunk
-from financial_evidence_agent.retrieval.hybrid import (
+from fra.domain import EvidenceChunk
+from fra.retrieval.hybrid import (
     HashEmbeddingProvider,
     HybridRetriever,
     reciprocal_rank_fusion,
 )
-from financial_evidence_agent.retrieval.indexing import (
+from fra.retrieval.indexing import (
     BgeM3EmbeddingProvider,
     EmbeddingModelUnavailableError,
 )
-from financial_evidence_agent.retrieval.rerank import RerankResult
+from fra.retrieval.rerank import RerankResult
 
 
 def _chunk(
@@ -542,3 +542,35 @@ def test_search_with_metrics_returns_its_own_per_call_envelope() -> None:
     assert [chunk.id for chunk in result.evidence] == ["chunk-1", "chunk-2"]
     assert result.metrics.fused_ids == ("chunk-1", "chunk-2")
     assert result.metrics.cache_hit is False
+
+
+def test_sparse_index_is_reused_for_distinct_queries_without_stale_content(monkeypatch) -> None:
+    """Query changes reuse corpus preparation; content changes must rebuild it."""
+    import fra.retrieval.hybrid as hybrid
+
+    builds = []
+    real_bm25 = hybrid.BM25Okapi
+
+    def build_index(corpus):
+        builds.append(corpus)
+        return real_bm25(corpus)
+
+    monkeypatch.setattr(hybrid, "BM25Okapi", build_index)
+    chunks = [
+        _chunk("reuse-a", "reusable sparse test revenue growth"),
+        _chunk("reuse-b", "reusable sparse test operational risk"),
+        _chunk("reuse-c", "reusable sparse test liquidity cash"),
+    ]
+    first = hybrid._sparse_ranking(chunks, ["revenue"])
+    second = hybrid._sparse_ranking(chunks, ["risk"])
+    assert first[0] == "reuse-a"
+    assert second[0] == "reuse-b"
+    assert len(builds) == 1
+
+    changed = [chunks[0].model_copy(update={"content": "new risk exposure"}), *chunks[1:]]
+    hybrid._sparse_ranking(changed, ["risk"])
+    assert len(builds) == 2
+    # Metadata/IDs are taken from the current scope, never from the cached index.
+    other_scope = [c.model_copy(update={"id": f"other-{c.id}", "ticker": "MSFT"}) for c in chunks]
+    assert hybrid._sparse_ranking(other_scope, ["revenue"])[0] == "other-reuse-a"
+    assert len(builds) == 2

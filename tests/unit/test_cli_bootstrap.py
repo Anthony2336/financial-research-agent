@@ -7,9 +7,8 @@ from pydantic import SecretStr
 from sqlalchemy import create_engine
 from typer.testing import CliRunner
 
-import financial_evidence_agent.bootstrap as bootstrap_module
-from financial_evidence_agent.application import ResearchCommand, ResearchMode
-from financial_evidence_agent.bootstrap import (
+import fra.bootstrap as bootstrap_module
+from fra.bootstrap import (
     BootstrapConfigurationError,
     BootstrapErrorCode,
     UnsupportedTickerError,
@@ -18,23 +17,24 @@ from financial_evidence_agent.bootstrap import (
     build_p1_runtime,
     build_quality_runtime,
 )
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.mcp_server.tools import FilingOutput
-from financial_evidence_agent.retrieval.indexing import (
+from fra.cli import app
+from fra.config import Settings
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.mcp_server.tools import FilingOutput
+from fra.retrieval.indexing import (
     EmbeddingModelUnavailableError,
     HashEmbeddingProvider,
 )
-from financial_evidence_agent.retrieval.ingest import IngestSummary, ingest_fixture
-from financial_evidence_agent.storage.cache import (
+from fra.retrieval.ingest import IngestSummary, ingest_fixture
+from fra.storage.cache import (
     InMemoryTtlJsonCache,
     NoopJsonCache,
     RedisJsonCache,
 )
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.repositories import FilingRepository
-from financial_evidence_agent.storage.run_repositories import RunStart
-from financial_evidence_agent.web_evidence.source_policy import SourcePolicy
+from fra.storage.database import create_schema
+from fra.storage.repositories import FilingRepository
+from fra.storage.run_repositories import RunStart
+from fra.web_evidence.source_policy import SourcePolicy
 
 runner = CliRunner()
 
@@ -68,7 +68,7 @@ def test_research_help_preserves_thesis_and_lists_p1_options() -> None:
 
 
 def test_research_cli_normalizes_and_passes_the_product_scope(monkeypatch) -> None:
-    import financial_evidence_agent.cli as cli_module
+    import fra.cli as cli_module
 
     captured: dict[str, ResearchCommand] = {}
 
@@ -123,7 +123,7 @@ def test_research_cli_normalizes_and_passes_the_product_scope(monkeypatch) -> No
 def test_invalid_research_scope_stops_before_settings_or_runtime(
     monkeypatch, arguments: list[str]
 ) -> None:
-    import financial_evidence_agent.cli as cli_module
+    import fra.cli as cli_module
 
     monkeypatch.setattr(
         cli_module,
@@ -150,7 +150,7 @@ def test_invalid_research_scope_stops_before_settings_or_runtime(
 def test_research_cli_enforces_normalized_thesis_boundaries(
     monkeypatch, length: int, accepted: bool
 ) -> None:
-    import financial_evidence_agent.cli as cli_module
+    import fra.cli as cli_module
 
     calls: list[ResearchCommand] = []
 
@@ -173,9 +173,9 @@ def test_postgres_fixture_cli_uses_hash_embeddings_without_constructing_bge(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The explicit fixture path stays offline even when the target database is PostgreSQL."""
-    import financial_evidence_agent.cli as cli_module
-    import financial_evidence_agent.retrieval.indexing as indexing_module
-    import financial_evidence_agent.retrieval.ingest as ingest_module
+    import fra.cli as cli_module
+    import fra.retrieval.indexing as indexing_module
+    import fra.retrieval.ingest as ingest_module
 
     repository = SimpleNamespace(engine=SimpleNamespace(dialect=SimpleNamespace(name="postgresql")))
     captured: dict[str, object] = {}
@@ -376,7 +376,7 @@ def test_p1_without_model_key_fails_before_constructing_runtime(monkeypatch) -> 
         raise AssertionError(f"unexpected engine construction for {url}")
 
     monkeypatch.setattr(
-        "financial_evidence_agent.bootstrap.create_engine",
+        "fra.bootstrap.create_engine",
         fail_engine_construction,
     )
 
@@ -409,7 +409,7 @@ def test_thesis_production_runtime_uses_documented_composition(
     ):
         del ranker_factory, asset_validator
         constructed["reranker"] = (model_name, cache_dir)
-        from financial_evidence_agent.retrieval.rerank import IdentityReranker
+        from fra.retrieval.rerank import IdentityReranker
 
         return IdentityReranker()
 
@@ -470,7 +470,6 @@ def test_thesis_production_runtime_uses_documented_composition(
         ({"openai_api_key": None}, "OPENAI_API_KEY"),
         ({"fast_model": None}, "FAST_MODEL"),
         ({"analyst_model": None}, "ANALYST_MODEL"),
-        ({"redis_url": None}, "REDIS_URL"),
     ],
 )
 def test_thesis_production_missing_configuration_fails_before_runtime_construction(
@@ -793,7 +792,7 @@ def test_p0_offline_runtime_never_constructs_external_clients(monkeypatch, tmp_p
         "TavilySearchProvider",
     ):
         monkeypatch.setattr(
-            f"financial_evidence_agent.bootstrap.{name}",
+            f"fra.bootstrap.{name}",
             fail_external_construction,
         )
 
@@ -991,11 +990,10 @@ def test_lazy_run_repository_configures_short_postgres_connect_timeout(
         _env_file=None,
     )
 
-    started = bootstrap_module._LazyResearchRunRepository(settings).start_refusal(
+    bootstrap_module._LazyResearchRunRepository(settings).start(
         RunStart(run_id="run-1", ticker="NVDA", request="question")
     )
 
-    assert started is True
     assert captured["connect_args"] == {"connect_timeout": 2}
 
 
@@ -1073,7 +1071,7 @@ def test_research_cli_maps_embedding_model_unavailable_without_traceback(
             "EMBEDDING_MODEL_UNAVAILABLE: prefetch BAAI/bge-m3 before startup"
         )
 
-    monkeypatch.setattr("financial_evidence_agent.cli.build_p1_runtime", unavailable)
+    monkeypatch.setattr("fra.cli.build_p1_runtime", unavailable)
 
     result = runner.invoke(
         app,
@@ -1090,3 +1088,20 @@ def test_research_cli_maps_embedding_model_unavailable_without_traceback(
     assert result.exit_code == 2
     assert "EMBEDDING_MODEL_UNAVAILABLE" in result.output
     assert "Traceback" not in result.output
+
+
+def test_thesis_production_runs_without_optional_redis(monkeypatch, tmp_path) -> None:
+    database_url = f"sqlite+pysqlite:///{tmp_path / 'thesis-no-redis.sqlite3'}"
+    _seed_fixture(database_url)
+    monkeypatch.setattr(
+        bootstrap_module, "BgeM3EmbeddingProvider", lambda *args, **kwargs: HashEmbeddingProvider()
+    )
+    runtime = build_p0_runtime(
+        _p1_settings(
+            database_url=database_url, redis_url=None, offline_demo=False, tavily_api_key=None
+        ),
+        ticker="NVDA",
+    )
+    assert isinstance(runtime.cache, NoopJsonCache)
+    assert runtime.dependencies.thesis_collector is not None
+    assert runtime.repository.latest_corpus_version("NVDA") is not None

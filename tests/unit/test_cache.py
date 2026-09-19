@@ -3,8 +3,8 @@ from typing import get_type_hints
 
 import pytest
 
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.storage.cache import NoopJsonCache, RedisJsonCache, build_cache
+from fra.config import Settings
+from fra.storage.cache import NoopJsonCache, RedisJsonCache, build_cache
 
 
 class FakeAsyncRedis:
@@ -136,7 +136,7 @@ async def test_redis_cache_failure_logs_are_fixed_for_all_six_operations(caplog)
     records = [
         record
         for record in caplog.records
-        if record.name == "financial_evidence_agent.storage.cache"
+        if record.name == "fra.storage.cache"
     ]
     assert [record.getMessage() for record in records] == [
         "cache read failed",

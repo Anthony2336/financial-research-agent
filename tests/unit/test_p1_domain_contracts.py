@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,

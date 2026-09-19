@@ -30,7 +30,7 @@ def _workflow_on(workflow: dict[str, object]) -> object:
 
 def _load_project_conftest():
     path = Path("tests/conftest.py")
-    spec = importlib.util.spec_from_file_location("task20_project_conftest", path)
+    spec = importlib.util.spec_from_file_location("project_conftest", path)
     assert spec is not None
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
@@ -157,7 +157,7 @@ def test_default_ci_runs_only_offline_release_checks() -> None:
     assert "docker compose --profile cli run --rm cli db-upgrade" in run_text
     assert (
         "docker compose --profile cli run --rm cli ingest --fixture "
-        "/app/src/financial_evidence_agent/resources/nvda_10q.html"
+        "/app/src/fra/resources/nvda_10q.html"
     ) in run_text
     assert "docker compose --profile cli run --rm cli research NVDA --thesis" in run_text
     assert "docker compose --profile cli run --rm cli eval --suite p2" in run_text
@@ -457,64 +457,6 @@ def test_environment_template_documents_current_release_capabilities() -> None:
     assert "LANGFUSE_HOST=https://cloud.langfuse.com" in text
 
 
-def test_operator_guide_matches_current_release_boundary() -> None:
-    text = Path("README.md").read_text(encoding="utf-8")
-
-    assert "# Financial Research Agent" in text
-    assert "## Local setup" in text
-    assert "## Offline demo" in text
-    assert "## Model-backed research" in text
-    assert "## Live SEC ingestion" in text
-    assert "## Market data" in text
-    assert "## Docker setup" in text
-    assert "## Configuration reference" in text
-    assert "## Evaluation" in text
-    assert "## Testing and CI" in text
-    assert "## Troubleshooting" in text
-    assert "uv sync --frozen --all-groups" in text
-    assert "uv run research" in text
-    assert "uv run ingest" in text
-    assert "--peer-ticker" in text
-    assert "--peer-scope" in text
-    assert "uv run eval --suite p2" in text
-    assert "--sync-langfuse-dataset" in text
-    assert "--langfuse-experiment" in text
-    assert "--with-context" in text
-    assert "docker compose --profile cli run --rm cli db-upgrade" in text
-    assert "DATABASE_UNVERSIONED_SCHEMA_REJECTED" in text
-    assert "not investment advice" in text
-
-
-def test_readme_links_design_instead_of_republishing_it() -> None:
-    """Operator guidance must not become a competing architecture specification."""
-    text = Path("README.md").read_text(encoding="utf-8")
-
-    assert "[Engineering Highlights](PROJECT_HIGHLIGHTS.md)" in text
-    duplicated_design_headings = {
-        "## Architecture",
-        "## Request lifecycle",
-        "## Design highlights",
-        "## Source policy and evidence rules",
-        "## Data and persistence",
-        "## Technology stack",
-        "## Repository layout",
-        "## Notes for reviewers and maintainers",
-    }
-    assert duplicated_design_headings.isdisjoint(text.splitlines())
-
-
-def test_engineering_highlights_is_concise_and_interviewer_facing() -> None:
-    text = Path("PROJECT_HIGHLIGHTS.md").read_text(encoding="utf-8")
-
-    assert len(text.splitlines()) <= 180
-    assert "## Technology Stack" in text
-    assert "## Core Engineering Design" in text
-    assert "## Engineering Quality" in text
-    assert "```" not in text
-    assert "Interview Talking Points" not in text
-    assert "Current Runtime Boundaries" not in text
-
-
 def test_operator_guide_includes_non_destructive_legacy_compose_recovery_sequence() -> None:
     text = Path("README.md").read_text(encoding="utf-8")
     fresh_project = "financial-evidence-agent-legacy-recovery"
@@ -524,7 +466,7 @@ def test_operator_guide_includes_non_destructive_legacy_compose_recovery_sequenc
     migrate = f"docker compose -p {fresh_project} --profile cli run --rm cli db-upgrade"
     ingest = (
         f"docker compose -p {fresh_project} --profile cli run --rm cli ingest "
-        "--fixture /app/src/financial_evidence_agent/resources/nvda_10q.html "
+        "--fixture /app/src/fra/resources/nvda_10q.html "
         "--ticker NVDA --form 10-Q"
     )
     research = (

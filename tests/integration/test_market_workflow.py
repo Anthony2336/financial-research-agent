@@ -17,34 +17,31 @@ from pydantic import SecretStr
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-import financial_evidence_agent.application as application_module
-from financial_evidence_agent.application import (
-    ResearchApplication,
-    ResearchCommand,
-    ResearchMode,
-)
-from financial_evidence_agent.bootstrap import (
+import fra.application as application_module
+from fra.application import ResearchApplication
+from fra.bootstrap import (
     build_market_runtime,
     build_research_application,
 )
-from financial_evidence_agent.config import Settings
-from financial_evidence_agent.domain import Intent, RouterDecision, SourceRefKind
-from financial_evidence_agent.graph.market_workflow import run_market_workflow
-from financial_evidence_agent.graph.models import MarketDependencies, MarketResearchResult
-from financial_evidence_agent.market_data.gateway import MarketFetchWrite
-from financial_evidence_agent.market_data.models import (
+from fra.config import Settings
+from fra.contracts import ResearchCommand, ResearchMode
+from fra.domain import Intent, RouterDecision, SourceRefKind
+from fra.graph.market_workflow import run_market_workflow
+from fra.graph.models import MarketDependencies, MarketResearchResult
+from fra.market_data.gateway import MarketFetchWrite
+from fra.market_data.models import (
     MarketBar,
     MarketDataError,
     MarketDataErrorCode,
     MarketSnapshot,
 )
-from financial_evidence_agent.memory.session import SessionMemoryStore
-from financial_evidence_agent.storage.cache import InMemoryTtlJsonCache
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.market_repositories import MarketDataRepository
-from financial_evidence_agent.storage.models import MarketBundleRecord
-from financial_evidence_agent.storage.repositories import FilingRepository
-from financial_evidence_agent.storage.run_repositories import ResearchRunRepository
+from fra.memory.session import SessionMemoryStore
+from fra.storage.cache import InMemoryTtlJsonCache
+from fra.storage.database import create_schema
+from fra.storage.market_repositories import MarketDataRepository
+from fra.storage.models import MarketBundleRecord
+from fra.storage.repositories import FilingRepository
+from fra.storage.run_repositories import ResearchRunRepository
 
 
 @dataclass
@@ -103,7 +100,7 @@ class FakeTraceSink:
     ) -> Iterator[FakeObservation]:
         del input
         root = FakeObservation(
-            name="financial-evidence-agent.run",
+            name="financial-research-agent.run",
             kind="agent",
             metadata=dict(metadata),
             trace_id=f"trace-{run_id}",

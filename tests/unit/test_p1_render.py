@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     Claim,
     ClaimKind,
     Confidence,
@@ -15,10 +15,10 @@ from financial_evidence_agent.domain import (
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.reporting import render_skill_markdown
-from financial_evidence_agent.reporting.render import DISCLAIMER
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.reporting import render_skill_markdown
+from fra.reporting.render import DISCLAIMER
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     GuardedFinancialDataPoint,
     GuardedSkillMemo,
@@ -29,7 +29,7 @@ from financial_evidence_agent.skills.schemas import (
     SkillResearchSection,
     VerificationStatus,
 )
-from financial_evidence_agent.web_evidence.source_policy import PolicyValidatedWebEvidence
+from fra.web_evidence.source_policy import PolicyValidatedWebEvidence
 
 
 def _guarded_memo() -> GuardedSkillMemo:

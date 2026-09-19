@@ -5,16 +5,16 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from financial_evidence_agent.domain import (
+from fra.domain import (
     EvidenceChunk,
     SourceKind,
     SourceRef,
     SourceRefKind,
     SourceTier,
 )
-from financial_evidence_agent.reporting.p2_guard import GuardedP2Report
-from financial_evidence_agent.reporting.p2_render import render_p2_markdown
-from financial_evidence_agent.research_packages.models import (
+from fra.reporting.p2_guard import GuardedP2Report
+from fra.reporting.p2_render import render_p2_markdown
+from fra.research_packages.models import (
     ComparabilityStatus,
     ComparableMetric,
     GuardedResearchPackage,
@@ -25,8 +25,8 @@ from financial_evidence_agent.research_packages.models import (
     ResearchQualityResult,
     ResolvedSource,
 )
-from financial_evidence_agent.skills.models import ResearchFacet, SkillName
-from financial_evidence_agent.skills.schemas import (
+from fra.skills.models import ResearchFacet, SkillName
+from fra.skills.schemas import (
     FinancialSourceProvenance,
     InformationSufficiency,
     RecipeProvenance,

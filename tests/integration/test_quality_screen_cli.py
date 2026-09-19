@@ -9,11 +9,11 @@ import pytest
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from typer.testing import CliRunner
 
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.cli import PROMPT_INJECTION_TEXT, app
-from financial_evidence_agent.domain import Intent, RouterDecision
-from financial_evidence_agent.research_packages.quality import QualityResearchRuntime
-from financial_evidence_agent.skills.models import SkillName
+from fra import cli as cli_module
+from fra.cli import PROMPT_INJECTION_TEXT, app
+from fra.domain import Intent, RouterDecision
+from fra.research_packages.quality import QualityResearchRuntime
+from fra.skills.models import SkillName
 
 from . import seed_supported_companies
 from .test_p1_workflow import P1Recorder, _dependencies

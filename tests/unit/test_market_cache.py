@@ -4,9 +4,9 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from financial_evidence_agent.market_data.gateway import MarketDataGateway
-from financial_evidence_agent.market_data.models import MarketBar, MarketSnapshot
-from financial_evidence_agent.storage.cache import MarketDataJsonCache
+from fra.market_data.gateway import MarketDataGateway
+from fra.market_data.models import MarketBar, MarketSnapshot
+from fra.storage.cache import MarketDataJsonCache
 
 NOW = datetime(2026, 8, 31, 14, 1, tzinfo=UTC)
 

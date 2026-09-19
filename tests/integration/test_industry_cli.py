@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from financial_evidence_agent import cli as cli_module
-from financial_evidence_agent.bootstrap import ResearchRuntime
-from financial_evidence_agent.cli import app
-from financial_evidence_agent.safety.router import REFUSAL_TEXT
-from financial_evidence_agent.skills.models import SkillName
+from fra import cli as cli_module
+from fra.bootstrap import ResearchRuntime
+from fra.cli import app
+from fra.safety.router import REFUSAL_TEXT
+from fra.skills.models import SkillName
 
 from . import seed_supported_companies
 from .test_p1_workflow import P1Recorder, _dependencies

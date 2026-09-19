@@ -3,15 +3,15 @@
 import pytest
 from pydantic import ValidationError
 
-from financial_evidence_agent.domain import Intent, SourceKind
-from financial_evidence_agent.skills.models import (
+from fra.domain import Intent, SourceKind
+from fra.skills.models import (
     RecipeBudget,
     ResearchFacet,
     ResearchRecipe,
     SkillName,
     WebUsagePolicy,
 )
-from financial_evidence_agent.skills.recipes import (
+from fra.skills.recipes import (
     COMPANY_DEEP_RESEARCH,
     EARNINGS_REVIEW,
     FINANCIAL_DATA_VERIFICATION,
@@ -21,7 +21,7 @@ from financial_evidence_agent.skills.recipes import (
     RESEARCH_INPUT_DISPATCH_CONTRACT,
     RESEARCH_INPUT_RECIPES,
 )
-from financial_evidence_agent.skills.registry import ResearchRecipeRegistry
+from fra.skills.registry import ResearchRecipeRegistry
 
 
 def test_registry_declares_all_six_recipes_in_stable_order() -> None:

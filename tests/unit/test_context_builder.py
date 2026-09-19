@@ -9,7 +9,7 @@ from threading import Barrier
 
 import pytest
 
-from financial_evidence_agent.context import (
+from fra.context import (
     BudgetAuthority,
     BudgetExhaustedError,
     BudgetLimits,
@@ -26,7 +26,7 @@ from financial_evidence_agent.context import (
     TokenCounterError,
     TokenEncodingAsset,
 )
-from financial_evidence_agent.skills.recipes import P1_RECIPES
+from fra.skills.recipes import P1_RECIPES
 
 
 def _token_asset(payload: bytes = b"local encoding") -> TokenEncodingAsset:
@@ -463,7 +463,7 @@ def test_default_llmlingua_load_resolves_only_approved_local_assets(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import financial_evidence_agent.context as context_module
+    import fra.context as context_module
 
     model_path = tmp_path / "models" / "snapshot"
     model_path.mkdir(parents=True)
@@ -529,7 +529,7 @@ def test_default_llmlingua_missing_local_assets_fails_typed_without_construction
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import financial_evidence_agent.context as context_module
+    import fra.context as context_module
 
     constructor_calls: list[object] = []
     monkeypatch.setattr(
@@ -562,7 +562,7 @@ def test_huggingface_snapshot_resolution_is_explicitly_local_only(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import financial_evidence_agent.context as context_module
+    import fra.context as context_module
 
     cache_dir = tmp_path / "models"
     snapshot = cache_dir / "models--approved" / "snapshots" / "commit"
@@ -600,7 +600,7 @@ def test_llmlingua_constructor_receives_local_path_and_offline_model_flags(
     import sys
     from types import SimpleNamespace
 
-    import financial_evidence_agent.context as context_module
+    import fra.context as context_module
 
     model_path = tmp_path / "snapshot"
     model_path.mkdir()

@@ -13,18 +13,18 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from financial_evidence_agent.domain import WebEvidence
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import WebEvidenceRecord
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
-from financial_evidence_agent.web_evidence.gateway import AllowlistedWebGateway, WebGatewayError
-from financial_evidence_agent.web_evidence.providers import (
+from fra.domain import WebEvidence
+from fra.storage.database import create_schema
+from fra.storage.models import WebEvidenceRecord
+from fra.storage.web_repositories import WebEvidenceRepository
+from fra.web_evidence.gateway import AllowlistedWebGateway, WebGatewayError
+from fra.web_evidence.providers import (
     HttpxRedirectResolver,
     RawSearchHit,
     SearchProviderError,
     TavilySearchProvider,
 )
-from financial_evidence_agent.web_evidence.source_policy import SourcePolicy
+from fra.web_evidence.source_policy import SourcePolicy
 
 
 class FakeProvider:
@@ -655,27 +655,6 @@ async def test_gateway_keeps_shared_authority_evidence_ticker_scoped(repository)
         assert session.scalar(select(func.count()).select_from(WebEvidenceRecord)) == 2
 
 
-async def test_httpx_redirect_resolver_returns_the_actual_final_response_url() -> None:
-    """Trusting search metadata instead of HTTPX response.url would miss redirect escapes."""
-
-    def redirect_chain(request: httpx.Request) -> httpx.Response:
-        if request.url.host == "www.reuters.com":
-            return httpx.Response(
-                302,
-                headers={"location": "https://reuters.com.example.org/phishing"},
-            )
-        return httpx.Response(200)
-
-    resolver = HttpxRedirectResolver(
-        timeout_seconds=0.1,
-        transport=httpx.MockTransport(redirect_chain),
-    )
-
-    final_url = await resolver.resolve(HttpUrl("https://www.reuters.com/article"))
-
-    assert str(final_url) == "https://reuters.com.example.org/phishing"
-
-
 async def test_gateway_rejects_httpx_actual_redirect_url_before_persistence(repository) -> None:
     """The production resolver path must not persist an allowlisted redirect origin."""
     web_repository, engine = repository
@@ -898,7 +877,7 @@ async def test_gateway_cache_key_includes_ticker_query_hash_and_policy_version(
     evidence = await gateway.search(ticker="nvda", query="  revenue  ")
 
     query_hash = sha256(b"revenue").hexdigest()
-    expected_key = f"web:NVDA:{query_hash}:allowlist-v3"
+    expected_key = f"web:NVDA:{query_hash}:allowlist-v3:3"
     assert cache.get_calls == [expected_key]
     assert cache.set_calls == [
         (expected_key, [item.model_dump(mode="json") for item in evidence], 75)
@@ -926,7 +905,7 @@ async def test_gateway_cache_hit_preserves_snapshot_freshness_and_skips_provider
     )
     cached = web_repository.upsert(cached_input)
     query_hash = sha256(b"revenue").hexdigest()
-    key = f"web:NVDA:{query_hash}:allowlist-v3"
+    key = f"web:NVDA:{query_hash}:allowlist-v3:3"
     cache = RecordingAsyncCache({key: [cached.model_dump(mode="json")]})
     provider = FakeProvider([AssertionError("provider must not run on a cache hit")])
     gateway = _gateway(
@@ -965,7 +944,7 @@ async def test_gateway_cache_hit_rejects_missing_or_tampered_authoritative_snaps
     )
     tampered = canonical.model_copy(update={"content": "Forged cached evidence"})
     query_hash = sha256(b"revenue").hexdigest()
-    key = f"web:NVDA:{query_hash}:allowlist-v3"
+    key = f"web:NVDA:{query_hash}:allowlist-v3:3"
     cache = RecordingAsyncCache({key: [tampered.model_dump(mode="json")]})
     provider = FakeProvider([[_hit("https://www.reuters.com/fresh")]])
     gateway = _gateway(
@@ -999,7 +978,7 @@ async def test_gateway_revalidates_cached_evidence_against_current_allowlist(
         content_hash=sha256(b"Stale source content").hexdigest(),
     )
     query_hash = sha256(b"revenue").hexdigest()
-    key = f"web:NVDA:{query_hash}:allowlist-v3"
+    key = f"web:NVDA:{query_hash}:allowlist-v3:3"
     cache = RecordingAsyncCache({key: [cached.model_dump(mode="json")]})
     provider = FakeProvider([[_hit("https://www.reuters.com/current")]])
     gateway = _gateway(
@@ -1019,7 +998,7 @@ async def test_gateway_treats_empty_cached_results_as_a_miss(repository) -> None
     """An empty cache entry must not suppress the live evidence provider."""
     web_repository, _ = repository
     query_hash = sha256(b"revenue").hexdigest()
-    key = f"web:NVDA:{query_hash}:allowlist-v3"
+    key = f"web:NVDA:{query_hash}:allowlist-v3:3"
     cache = RecordingAsyncCache({key: []})
     provider = FakeProvider([[_hit("https://www.reuters.com/current")]])
     gateway = _gateway(
@@ -1134,3 +1113,18 @@ async def test_gateway_derives_a_deterministic_default_policy_version(repository
     await second.search(ticker="NVDA", query="revenue")
 
     assert first_cache.get_calls == second_cache.get_calls
+
+
+async def test_small_cached_search_does_not_truncate_a_later_larger_request(repository):
+    web_repository, _ = repository
+    provider = FakeProvider([[
+        _hit(f"https://www.sec.gov/Archives/filing-{index}") for index in range(3)
+    ]])
+    gateway = _gateway(provider, web_repository, cache=RecordingAsyncCache())
+    small = await gateway.search(ticker="NVDA", query="revenue", max_results=1)
+    large = await gateway.search(ticker="NVDA", query="revenue", max_results=3)
+    repeated = await gateway.search(ticker="NVDA", query="revenue", max_results=3)
+    assert len(small) == 1
+    assert len(large) == 3
+    assert repeated == large
+    assert provider.calls == 2

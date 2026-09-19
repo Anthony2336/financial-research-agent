@@ -8,11 +8,11 @@ from sqlalchemy import create_engine, func, inspect, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.domain import SourceKind, SourceTier, WebEvidence
-from financial_evidence_agent.storage import web_repositories
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import WebEvidenceRecord
-from financial_evidence_agent.storage.web_repositories import WebEvidenceRepository
+from fra.domain import SourceKind, SourceTier, WebEvidence
+from fra.storage import web_repositories
+from fra.storage.database import create_schema
+from fra.storage.models import WebEvidenceRecord
+from fra.storage.web_repositories import WebEvidenceRepository
 
 
 @pytest.fixture

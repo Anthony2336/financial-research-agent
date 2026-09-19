@@ -8,11 +8,11 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from financial_evidence_agent.retrieval.hybrid import HybridRetriever
-from financial_evidence_agent.retrieval.indexing import EmbeddingIndexer
-from financial_evidence_agent.storage.database import create_schema
-from financial_evidence_agent.storage.models import Chunk
-from financial_evidence_agent.storage.repositories import ChunkToStore, FilingRepository
+from fra.retrieval.hybrid import HybridRetriever
+from fra.retrieval.indexing import EmbeddingIndexer
+from fra.storage.database import create_schema
+from fra.storage.models import Chunk
+from fra.storage.repositories import ChunkToStore, FilingRepository
 
 
 class RecordingEmbeddings:
